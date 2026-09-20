@@ -1010,7 +1010,7 @@ footer{
   }
 }
 
-</style>
+button:disabled{opacity:.55;cursor:not-allowed} #connectionMessage{line-height:1.6;color:#425b63} .summary-row strong{overflow-wrap:anywhere} .pricing-note{font-size:13px;line-height:1.6;color:#52686f} </style>
 </head>
 
 <body>
@@ -1243,7 +1243,7 @@ footer{
 
             <br>
 
-            Select your preferred dates to continue.
+            Up to 30 guests · No extra charge per person.
 
           </div>
 
@@ -1255,7 +1255,7 @@ footer{
             </div>
 
             <div class="price">
-              View availability
+              RM1,200 / 1 night
             </div>
 
             <div class="price-note">
@@ -1535,7 +1535,7 @@ footer{
 
       <span>
         Review the property details, rental period and
-        applicable terms before confirming your reservation.
+        applicable terms before submitting your request.
       </span>
 
     </div>
@@ -1770,10 +1770,11 @@ footer{
           class="check-button"
           onclick="checkRentalPeriod()"
         >
-          Check rental period
+          Check availability & price
         </button>
 
 
+        <p id="connectionMessage" role="status" aria-live="polite"></p>
         <div
           class="rental-summary"
           id="rentalSummary"
@@ -1939,7 +1940,7 @@ footer{
             class="continue-button"
             onclick="continueBooking()"
           >
-            Continue
+            Send booking request
           </button>
 
         </div>
@@ -2016,8 +2017,7 @@ footer{
         <p>
           <strong>2. Occupancy</strong><br>
           The property may only be occupied by the number of
-          occupants declared during the reservation unless
-          otherwise agreed.
+          occupants declared during the reservation. Mayang Sari accommodates a maximum of 30 guests, with no extra charge per person.
         </p>
 
         <p>
@@ -2039,9 +2039,7 @@ footer{
 
         <p>
           <strong>5. Payment</strong><br>
-          Any applicable rental amount, deposit, payment
-          schedule and cancellation conditions will be shown
-          before final confirmation.
+          For Mayang Sari, the RM500 booking deposit is part of the total rental price. The remaining balance is payable on check-in day after the deposit has been paid. Cleaning is free. Cancellation and refund conditions will be provided before payment.
         </p>
 
         <p>
@@ -2128,14 +2126,12 @@ footer{
       </div>
 
       <h2 class="modal-title">
-        Your request is ready.
+        Your request has been received.
       </h2>
 
 
       <p class="modal-description">
-        This prototype has collected the information required
-        for the rental request. No information has been
-        submitted or stored yet.
+        Your request has been saved for review. Dates are not reserved yet, and no payment has been collected. We will contact you about confirmation and the RM500 booking deposit.
       </p>
 
 
@@ -2203,7 +2199,7 @@ footer{
           </span>
 
           <span style="color:#168552;">
-            Ready for submission
+            Pending review — not confirmed
           </span>
 
         </div>
@@ -2232,7 +2228,7 @@ footer{
 
 <div
   class="toast"
-  id="toast"
+  id="toast" role="status" aria-live="polite"
 ></div>
 
 
@@ -2567,7 +2563,7 @@ function searchProperties(){
    OPEN PROPERTY
 ========================================================= */
 
-function openProperty(propertyId){
+function openPropertyBase(propertyId){
 
   const property =
     properties[propertyId];
@@ -2732,7 +2728,7 @@ function openProperty(propertyId){
    CLOSE PROPERTY
 ========================================================= */
 
-function closeProperty(){
+function closePropertyBase(){
 
   document.getElementById(
     "propertyModal"
@@ -2751,7 +2747,7 @@ function closeProperty(){
    RESET BOOKING FORM
 ========================================================= */
 
-function resetBookingForm(){
+function resetBookingFormBase(){
 
   document.getElementById(
     "rentalSummary"
@@ -2794,179 +2790,6 @@ function resetBookingForm(){
    CHECK RENTAL PERIOD
 ========================================================= */
 
-function checkRentalPeriod(){
-
-  if(
-    !currentProperty ||
-    !currentProperty.available
-  ){
-
-    showToast(
-      "This property is not yet available."
-    );
-
-    return;
-
-  }
-
-
-  const checkin =
-    document.getElementById(
-      "modalCheckin"
-    ).value;
-
-  const checkout =
-    document.getElementById(
-      "modalCheckout"
-    ).value;
-
-  const guests =
-    document.getElementById(
-      "modalGuests"
-    ).value;
-
-
-  if(
-    !checkin ||
-    !checkout
-  ){
-
-    showToast(
-      "Please select both move-in and move-out dates."
-    );
-
-    return;
-
-  }
-
-
-  const start =
-    new Date(
-      checkin + "T00:00:00"
-    );
-
-  const end =
-    new Date(
-      checkout + "T00:00:00"
-    );
-
-
-  if(end <= start){
-
-    showToast(
-      "Move-out date must be after the move-in date."
-    );
-
-    return;
-
-  }
-
-
-  const today =
-    new Date();
-
-  today.setHours(
-    0,0,0,0
-  );
-
-
-  if(start < today){
-
-    showToast(
-      "Move-in date cannot be in the past."
-    );
-
-    return;
-
-  }
-
-
-  const milliseconds =
-    end - start;
-
-  const days =
-    Math.round(
-      milliseconds /
-      (1000 * 60 * 60 * 24)
-    );
-
-
-  document.getElementById(
-    "summaryProperty"
-  ).textContent =
-    currentProperty.name;
-
-
-  document.getElementById(
-    "summaryDates"
-  ).textContent =
-    `${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
-
-
-  document.getElementById(
-    "summaryDuration"
-  ).textContent =
-    days === 1
-      ? "1 day"
-      : `${days} days`;
-
-
-  document.getElementById(
-    "summaryGuests"
-  ).textContent =
-    guests === "1"
-      ? "1 occupant"
-      : `${guests} occupants`;
-
-
-  document.getElementById(
-    "rentalSummary"
-  ).classList.add(
-    "visible"
-  );
-
-
-  document.getElementById(
-    "bookingStep"
-  ).classList.add(
-    "visible"
-  );
-
-
-  window.currentRental = {
-
-    propertyId:
-      currentProperty.id,
-
-    property:
-      currentProperty.name,
-
-    checkin,
-
-    checkout,
-
-    days,
-
-    guests
-
-  };
-
-
-  /*
-    IMPORTANT:
-
-    At the moment this is only a visual prototype.
-
-    When Google Sheets is connected,
-    this is the point where Apps Script
-    will check whether the requested dates
-    overlap with an existing confirmed booking.
-  */
-
-}
-
-
-
 /* =========================================================
    DISPLAY DATE
 ========================================================= */
@@ -2989,173 +2812,6 @@ function formatDisplayDate(date){
 /* =========================================================
    CONTINUE BOOKING
 ========================================================= */
-
-function continueBooking(){
-
-  if(!window.currentRental){
-
-    showToast(
-      "Please select and check your rental period first."
-    );
-
-    return;
-
-  }
-
-
-  const name =
-    document.getElementById(
-      "guestName"
-    ).value.trim();
-
-
-  const phone =
-    document.getElementById(
-      "guestPhone"
-    ).value.trim();
-
-
-  const email =
-    document.getElementById(
-      "guestEmail"
-    ).value.trim();
-
-
-  const accepted =
-    document.getElementById(
-      "acceptTerms"
-    ).checked;
-
-
-  if(!name){
-
-    showToast(
-      "Please enter your full name."
-    );
-
-    return;
-
-  }
-
-
-  if(!phone){
-
-    showToast(
-      "Please enter your mobile number."
-    );
-
-    return;
-
-  }
-
-
-  if(!email){
-
-    showToast(
-      "Please enter your email address."
-    );
-
-    return;
-
-  }
-
-
-  if(!isValidEmail(email)){
-
-    showToast(
-      "Please enter a valid email address."
-    );
-
-    return;
-
-  }
-
-
-  if(!accepted){
-
-    showToast(
-      "Please review and accept the rental terms."
-    );
-
-    return;
-
-  }
-
-
-  /*
-    Store the complete request temporarily
-    in JavaScript.
-
-    Later this object will be sent to
-    Google Apps Script and Google Sheets.
-  */
-
-  window.pendingBooking = {
-
-    bookingId:
-      createTemporaryBookingId(),
-
-    propertyId:
-      window.currentRental.propertyId,
-
-    property:
-      window.currentRental.property,
-
-    checkin:
-      window.currentRental.checkin,
-
-    checkout:
-      window.currentRental.checkout,
-
-    duration:
-      window.currentRental.days,
-
-    occupants:
-      window.currentRental.guests,
-
-    customerName:
-      name,
-
-    customerPhone:
-      phone,
-
-    customerEmail:
-      email,
-
-    agreementVersion:
-      "1.0",
-
-    agreementAccepted:
-      true,
-
-    acceptedAt:
-      new Date().toISOString(),
-
-    status:
-      "REQUEST_READY"
-
-  };
-
-
-  populateConfirmation();
-
-
-  document.getElementById(
-    "propertyModal"
-  ).classList.remove(
-    "open"
-  );
-
-
-  document.getElementById(
-    "confirmationModal"
-  ).classList.add(
-    "open"
-  );
-
-}
-
-
 
 /* =========================================================
    POPULATE CONFIRMATION
@@ -3216,75 +2872,6 @@ function populateConfirmation(){
 /* =========================================================
    TEMPORARY BOOKING ID
 ========================================================= */
-
-function createTemporaryBookingId(){
-
-  const now =
-    new Date();
-
-
-  const year =
-    now.getFullYear();
-
-
-  const month =
-    String(
-      now.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  const day =
-    String(
-      now.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  const hours =
-    String(
-      now.getHours()
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  const minutes =
-    String(
-      now.getMinutes()
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  const seconds =
-    String(
-      now.getSeconds()
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  const propertyId =
-    currentProperty
-      ? currentProperty.id
-      : "IL";
-
-
-  return (
-    `${propertyId}-${year}${month}${day}-${hours}${minutes}${seconds}`
-  );
-
-}
-
-
 
 /* =========================================================
    EMAIL VALIDATION
@@ -3709,30 +3296,147 @@ document.querySelectorAll(
 
 
 
-/* =========================================================
-   FUTURE GOOGLE SHEETS CONNECTION
-
-   Later we will replace the prototype booking behaviour
-   with something similar to:
-
-   fetch(GOOGLE_APPS_SCRIPT_URL, {
-     method: "POST",
-     body: JSON.stringify(window.pendingBooking)
-   })
-
-   Google Apps Script will then:
-
-   1. Check availability again.
-   2. Prevent overlapping confirmed rentals.
-   3. Generate the permanent booking reference.
-   4. Save the customer details.
-   5. Save the rental period.
-   6. Record the accepted agreement version.
-   7. Record the acceptance timestamp.
-   8. Return the booking status.
-========================================================= */
 
 </script>
+<script>
+const BOOKING_API = 'https://script.google.com/macros/s/AKfycbz1Vb_WMbyij69uPshUVRImmNF9yLI4eNnte-qD85J9T244vDIVs0EFa4IXsI7c1qBM/exec';
+let quoteGeneration = 0;
+let savingRequest = false;
+let uncertainSubmission = false;
+let checkedQuote = null;
+const el = id => document.getElementById(id);
+const money = value => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR'}).format(value);
+function connectionMessage(text){ el('connectionMessage').textContent = text; }
+function formSelection(){
+  return {propertyId:currentProperty?.id,checkin:el('modalCheckin').value,checkout:el('modalCheckout').value,occupants:Number(el('modalGuests').value)};
+}
+function selectionKey(value){return JSON.stringify([value.propertyId,value.checkin,value.checkout,value.occupants]);}
+function clearQuote(){
+  quoteGeneration++;
+  checkedQuote=null;
+  window.currentRental=null;
+  el('rentalSummary').classList.remove('visible');
+  el('bookingStep').classList.remove('visible');
+  el('acceptTerms').checked=false;
+  document.querySelector('.check-button').disabled=false;
+  connectionMessage(uncertainSubmission ? 'A previous request may have been saved. Please contact Ignite Living before submitting again.' : '');
+}
+function resetBookingForm(){resetBookingFormBase();clearQuote();}
+function openProperty(id){if(savingRequest)return;openPropertyBase(id);}
+function closeProperty(){if(savingRequest)return;clearQuote();closePropertyBase();}
+async function callBookingApi(action, data={}, post=false){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),25000);
+  try{
+    const url=new URL(BOOKING_API);
+    const options={signal:controller.signal,redirect:'follow',credentials:'omit'};
+    if(post){
+      options.method='POST';
+      options.headers={'Content-Type':'text/plain;charset=utf-8'};
+      options.body=JSON.stringify({action,...data});
+    }else{
+      url.search=new URLSearchParams({action,...data}).toString();
+    }
+    const response=await fetch(url,options);
+    if(!response.ok)throw new Error('Connection failed.');
+    const result=await response.json();
+    if(typeof result.ok!=='boolean')throw new Error('Unexpected response.');
+    if(!result.ok){
+      const error=new Error(result.message||'Request could not be processed.');
+      error.rejected=true;
+      throw error;
+    }
+    return result;
+  }finally{clearTimeout(timeout);}
+}
+async function checkRentalPeriod(){
+  if(savingRequest)return;
+  clearQuote();
+  const input=formSelection();
+  if(!currentProperty?.available)return;
+  if(!input.checkin||!input.checkout||input.checkout<=input.checkin){connectionMessage('Choose a move-out date after your move-in date.');return;}
+  const generation=quoteGeneration;
+  const button=document.querySelector('.check-button');
+  button.disabled=true;
+  connectionMessage('Checking availability and rental price…');
+  try{
+    const [quote,status]=await Promise.all([callBookingApi('quote',input),callBookingApi('status')]);
+    if(generation!==quoteGeneration||selectionKey(input)!==selectionKey(formSelection()))return;
+    if(!quote.available){connectionMessage('These dates are unavailable. Please choose another rental period.');return;}
+    if(![quote.totalAmount,quote.bookingDeposit,quote.balanceAfterDeposit,quote.nights].every(Number.isFinite))throw new Error('Invalid price response.');
+    checkedQuote={...quote,key:selectionKey(input),enabled:status.bookingEnabled===true};
+    el('summaryProperty').textContent=quote.propertyName;
+    el('summaryDates').textContent=input.checkin+' → '+input.checkout;
+    el('summaryDuration').textContent=quote.nights+(quote.nights===1?' night':' nights');
+    el('summaryGuests').textContent=input.occupants+' guests';
+    el('quoteTotal').textContent=money(quote.totalAmount);
+    el('quoteDeposit').textContent=money(quote.bookingDeposit);
+    el('quoteBalance').textContent=money(quote.balanceAfterDeposit);
+    el('rentalSummary').classList.add('visible');
+    const enabled=checkedQuote.enabled&&!uncertainSubmission;
+    el('bookingStep').classList.toggle('visible',enabled);
+    connectionMessage(uncertainSubmission?'A previous request may have been saved. Contact Ignite Living before submitting again.':enabled?'Dates currently available. A request does not reserve dates or collect payment.':'Dates currently available. Online booking requests are not open yet.');
+  }catch(error){
+    if(generation===quoteGeneration)connectionMessage(error.rejected?error.message:'Unable to check availability. Please try again when the connection is available.');
+  }finally{if(generation===quoteGeneration)button.disabled=false;}
+}
+async function continueBooking(){
+  if(savingRequest||uncertainSubmission)return;
+  if(!checkedQuote||!checkedQuote.enabled||checkedQuote.key!==selectionKey(formSelection())){clearQuote();connectionMessage('Please check your rental period again.');return;}
+  const data={...formSelection(),customerName:el('guestName').value.trim(),customerPhone:el('guestPhone').value.trim(),customerEmail:el('guestEmail').value.trim(),agreementAccepted:el('acceptTerms').checked,agreementVersion:'1.0'};
+  if(!data.customerName||data.customerName.length>120){connectionMessage('Please enter your full name (up to 120 characters).');return;}
+  if(!/^\+?[\d\s()-]{7,30}$/.test(data.customerPhone)){connectionMessage('Please enter a valid mobile number.');return;}
+  if(!isValidEmail(data.customerEmail)||data.customerEmail.length>180){connectionMessage('Please enter a valid email address.');return;}
+  if(!data.agreementAccepted){connectionMessage('Please read and accept the rental terms.');return;}
+  savingRequest=true;
+  const controls=[...el('propertyModal').querySelectorAll('button,input,select')];
+  const oldDisabled=controls.map(control=>control.disabled);
+  controls.forEach(control=>control.disabled=true);
+  connectionMessage('Sending your booking request. Please keep this page open…');
+  try{
+    const result=await callBookingApi('requestBooking',data,true);
+    if(!result.bookingId||result.status!=='PENDING_REVIEW')throw new Error('Unexpected save response.');
+    el('confirmProperty').textContent=checkedQuote.propertyName;
+    el('confirmDates').textContent=data.checkin+' → '+data.checkout;
+    el('confirmGuests').textContent=data.occupants+' guests';
+    el('confirmName').textContent=data.customerName;
+    el('confirmReference').textContent=result.bookingId;
+    el('confirmTotal').textContent=money(result.totalAmount);
+    el('confirmDeposit').textContent=money(result.bookingDeposit);
+    el('confirmBalance').textContent=money(result.balanceAfterDeposit);
+    clearQuote();
+    el('propertyModal').classList.remove('open');
+    el('confirmationModal').classList.add('open');
+  }catch(error){
+    if(!error.rejected)uncertainSubmission=true;
+    connectionMessage(error.rejected?error.message:'We could not confirm whether your request was saved. Please contact Ignite Living before trying again, to avoid duplicate requests.');
+  }finally{
+    savingRequest=false;
+    controls.forEach((control,index)=>control.disabled=oldDisabled[index]);
+    if(uncertainSubmission)el('bookingStep').querySelector('.continue-button').disabled=true;
+  }
+}
+function manageStay(event){event?.preventDefault();showToast('Online booking management is not available yet. Keep your booking reference for enquiries.');}
+function addSummaryRow(container,label,id){
+  const row=document.createElement('div');row.className='summary-row';
+  const text=document.createElement('span');text.textContent=label;
+  const value=document.createElement('strong');value.id=id;row.append(text,value);container.append(row);
+}
+for(const id of ['searchGuests','modalGuests']){
+  el(id).replaceChildren(...Array.from({length:30},(_,i)=>new Option((i+1)+(i===0?' person':' people'),String(i+1),i===1,i===1)));
+}
+for(const id of ['modalCheckin','modalCheckout','modalGuests'])el(id).addEventListener('change',clearQuote);
+addSummaryRow(el('rentalSummary'),'Total rental','quoteTotal');
+addSummaryRow(el('rentalSummary'),'Booking deposit (included in total)','quoteDeposit');
+addSummaryRow(el('rentalSummary'),'Balance at check-in after deposit payment','quoteBalance');
+const note=document.createElement('p');note.className='pricing-note';note.textContent='1 night: RM1,200 · 2 nights: RM1,800 · 3 nights: RM2,400. Each additional night: RM500. Cleaning is free. Up to 30 guests, with no extra charge per person. Contact us for additional discounts.';
+el('rentalPanel').insertBefore(note,el('rentalPanel').firstChild);
+const confirmBox=el('confirmationModal').querySelector('.rental-summary');
+addSummaryRow(confirmBox,'Booking reference','confirmReference');
+addSummaryRow(confirmBox,'Total rental','confirmTotal');
+addSummaryRow(confirmBox,'Booking deposit (not yet paid)','confirmDeposit');
+addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
 
+</script>
 </body>
 </html>
