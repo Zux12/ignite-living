@@ -852,4 +852,2887 @@ footer{
     grid-column:1/-1;
   }
 
-  .property
+  .property{
+    grid-template-columns:320px 1fr;
+  }
+
+  .gallery{
+    height:330px;
+  }
+
+  .benefits{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:720px){
+
+  .nav-right a:not(.manage-link){
+    display:none;
+  }
+
+  .search-hero{
+    padding-top:34px;
+    padding-bottom:72px;
+  }
+
+  .hero-inner h1{
+    font-size:39px;
+  }
+
+  .search-container{
+    padding:0 14px;
+  }
+
+  .searchbar{
+    grid-template-columns:1fr;
+  }
+
+  .search-field{
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .search-button{
+    min-height:55px;
+  }
+
+  main{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .intro-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .property{
+    grid-template-columns:1fr;
+  }
+
+  .property-image{
+    min-height:235px;
+  }
+
+  .property-footer{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .price-area{
+    width:100%;
+    text-align:left;
+  }
+
+  .property-button{
+    width:100%;
+  }
+
+  .gallery{
+    height:auto;
+    display:block;
+  }
+
+  .gallery-main{
+    height:260px;
+  }
+
+  .gallery-side{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:none;
+    height:150px;
+  }
+
+  .rental-grid,
+  .guest-grid{
+    grid-template-columns:1fr;
+  }
+
+  .guest-field.full{
+    grid-column:auto;
+  }
+
+  .footer-inner{
+    flex-direction:column;
+  }
+}
+
+@media(max-width:460px){
+
+  .nav{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  .brand{
+    font-size:17px;
+  }
+
+  .brand-mark{
+    width:34px;
+    height:34px;
+  }
+
+  .manage-link{
+    padding:8px 10px;
+    font-size:12px;
+  }
+
+  .hero-inner h1{
+    font-size:34px;
+  }
+
+  .hero-inner p{
+    font-size:15px;
+  }
+
+  .modal{
+    padding:0;
+  }
+
+  .modal-box{
+    max-height:100vh;
+    min-height:100vh;
+    border-radius:0;
+  }
+
+  .modal-body{
+    padding:22px 18px 30px;
+  }
+
+  .gallery-main{
+    height:235px;
+  }
+
+  .gallery-side{
+    height:125px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<header>
+  <div class="nav">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <span>IL</span>
+      </div>
+      IGNITE LIVING
+    </div>
+
+    <div class="nav-right">
+      <a href="#homes">Our Homes</a>
+      <a href="#about">How it works</a>
+      <a href="#" class="manage-link" onclick="manageStay(event)">
+        Manage my stay
+      </a>
+    </div>
+
+  </div>
+</header>
+
+
+<!-- =======================================================
+     HERO
+======================================================= -->
+
+<section class="search-hero">
+
+  <div class="hero-inner">
+
+    <div class="hero-label">
+      Ignite Living · Malaysia
+    </div>
+
+    <h1>
+      Find a place that feels like home.
+    </h1>
+
+    <p>
+      Furnished private homes for flexible living periods,
+      whether you need a quick escape, a few weeks away,
+      or somewhere comfortable for longer.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     MAIN SEARCH
+======================================================= -->
+
+<div class="search-container">
+
+  <div class="searchbar">
+
+    <div class="search-field">
+      <label>Where</label>
+
+      <select id="searchLocation">
+        <option value="">Anywhere</option>
+        <option value="Melaka">Melaka</option>
+        <option value="Johor">Johor Bahru</option>
+      </select>
+    </div>
+
+
+    <div class="search-field">
+      <label>Move in</label>
+      <input type="date" id="searchCheckin">
+    </div>
+
+
+    <div class="search-field">
+      <label>Move out</label>
+      <input type="date" id="searchCheckout">
+    </div>
+
+
+    <div class="search-field">
+      <label>Occupants</label>
+
+      <select id="searchGuests">
+        <option value="1">1 person</option>
+        <option value="2" selected>2 people</option>
+        <option value="3">3 people</option>
+        <option value="4">4 people</option>
+        <option value="5">5 people</option>
+        <option value="6">6+ people</option>
+      </select>
+    </div>
+
+
+    <button
+      class="search-button"
+      onclick="searchProperties()"
+    >
+      Search
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     PROPERTIES
+======================================================= -->
+
+<main>
+
+<section id="homes">
+
+  <div class="intro-row">
+
+    <div>
+      <h2>Places to call home</h2>
+
+      <p>
+        Explore furnished homes available through Ignite Living.
+      </p>
+    </div>
+
+    <div
+      class="result-count"
+      id="resultCount"
+    >
+      3 properties
+    </div>
+
+  </div>
+
+
+  <div class="property-list">
+
+
+    <!-- ===================================================
+         IL001 - MAYANG SARI
+    ==================================================== -->
+
+    <article
+      class="property"
+      data-location="Melaka"
+      data-property="IL001"
+    >
+
+      <div class="property-image">
+
+        <img
+          src="assets/properties/mayang-sari/cover-pedas.jpg"
+          alt="Mayang Sari Beach Cottage"
+        >
+
+        <span class="status-badge">
+          Available
+        </span>
+
+      </div>
+
+
+      <div class="property-content">
+
+        <div class="location">
+          KUALA SUNGAI BARU · MELAKA
+        </div>
+
+        <h3 class="property-title">
+          Mayang Sari Beach Cottage
+        </h3>
+
+        <div class="property-type">
+          Private furnished home · Coastal setting
+        </div>
+
+
+        <div class="rating">
+
+          <span class="rating-number">
+            4.3
+          </span>
+
+          <strong>
+            Very good
+          </strong>
+
+          <span class="rating-muted">
+            14 reviews
+          </span>
+
+        </div>
+
+
+        <div class="features">
+
+          <span class="feature">
+            Entire property
+          </span>
+
+          <span class="feature">
+            Furnished
+          </span>
+
+          <span class="feature">
+            Private parking
+          </span>
+
+          <span class="feature">
+            Near the sea
+          </span>
+
+        </div>
+
+
+        <div class="property-footer">
+
+          <div class="availability">
+
+            <strong>
+              Available for flexible periods
+            </strong>
+
+            <br>
+
+            Select your preferred dates to continue.
+
+          </div>
+
+
+          <div class="price-area">
+
+            <div class="price-label">
+              Rental rate
+            </div>
+
+            <div class="price">
+              View availability
+            </div>
+
+            <div class="price-note">
+              Rate shown after selecting dates
+            </div>
+
+            <button
+              class="property-button"
+              onclick="openProperty('IL001')"
+            >
+              See availability
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- ===================================================
+         IL002 - LAMAN SERI
+    ==================================================== -->
+
+    <article
+      class="property"
+      data-location="Johor"
+      data-property="IL002"
+    >
+
+      <div class="property-image">
+
+        <img
+          src="assets/properties/laman-seri/cover-johor.png"
+          alt="Laman Seri Residence"
+        >
+
+        <span class="status-badge soon">
+          Coming soon
+        </span>
+
+      </div>
+
+
+      <div class="property-content">
+
+        <div class="location">
+          TAMAN PERLING · JOHOR BAHRU
+        </div>
+
+        <h3 class="property-title">
+          Laman Seri Residence
+        </h3>
+
+        <div class="property-type">
+          Private furnished residence
+        </div>
+
+
+        <div class="features">
+
+          <span class="feature">
+            Entire property
+          </span>
+
+          <span class="feature">
+            Furnished
+          </span>
+
+          <span class="feature">
+            Residential neighbourhood
+          </span>
+
+          <span class="feature">
+            Flexible period
+          </span>
+
+        </div>
+
+
+        <div class="property-footer">
+
+          <div class="availability">
+            Property information and availability
+            will be released soon.
+          </div>
+
+
+          <div class="price-area">
+
+            <div class="price">
+              Coming soon
+            </div>
+
+            <button
+              class="property-button"
+              onclick="openProperty('IL002')"
+            >
+              View home
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- ===================================================
+         IL003 - SERI TEDUH
+    ==================================================== -->
+
+    <article
+      class="property"
+      data-location="Melaka"
+      data-property="IL003"
+    >
+
+      <div class="property-image">
+
+        <img
+          src="assets/properties/seri-teduh/cover-melaka.png"
+          alt="Seri Teduh Residence"
+        >
+
+        <span class="status-badge soon">
+          Coming soon
+        </span>
+
+      </div>
+
+
+      <div class="property-content">
+
+        <div class="location">
+          TAMAN PAYA RUMPUT PERDANA · MELAKA
+        </div>
+
+        <h3 class="property-title">
+          Seri Teduh Residence
+        </h3>
+
+        <div class="property-type">
+          Private furnished residence
+        </div>
+
+
+        <div class="features">
+
+          <span class="feature">
+            Entire property
+          </span>
+
+          <span class="feature">
+            Furnished
+          </span>
+
+          <span class="feature">
+            Residential neighbourhood
+          </span>
+
+          <span class="feature">
+            Flexible period
+          </span>
+
+        </div>
+
+
+        <div class="property-footer">
+
+          <div class="availability">
+            Property information and availability
+            will be released soon.
+          </div>
+
+
+          <div class="price-area">
+
+            <div class="price">
+              Coming soon
+            </div>
+
+            <button
+              class="property-button"
+              onclick="openProperty('IL003')"
+            >
+              View home
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+  </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     HOW IT WORKS
+======================================================= -->
+
+<section
+  class="collection"
+  id="about"
+>
+
+  <h2>
+    Flexible living, made simple.
+  </h2>
+
+  <p>
+    Ignite Living brings furnished residential properties
+    together in one place, making it easier to find a home
+    for the period that suits you.
+  </p>
+
+
+  <div class="benefits">
+
+    <div class="benefit">
+
+      <div class="benefit-icon">
+        ⌂
+      </div>
+
+      <strong>
+        Private furnished homes
+      </strong>
+
+      <span>
+        Stay in an entire residential property with the
+        comfort and privacy of having your own space.
+      </span>
+
+    </div>
+
+
+    <div class="benefit">
+
+      <div class="benefit-icon">
+        ◷
+      </div>
+
+      <strong>
+        Flexible rental periods
+      </strong>
+
+      <span>
+        Select the dates that suit your needs, from shorter
+        periods to extended stays.
+      </span>
+
+    </div>
+
+
+    <div class="benefit">
+
+      <div class="benefit-icon">
+        ✓
+      </div>
+
+      <strong>
+        Clear rental terms
+      </strong>
+
+      <span>
+        Review the property details, rental period and
+        applicable terms before confirming your reservation.
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+
+<!-- =======================================================
+     FOOTER
+======================================================= -->
+
+<footer>
+
+  <div class="footer-inner">
+
+    <div>
+
+      <div class="footer-title">
+        IGNITE LIVING
+      </div>
+
+      <div class="footer-text">
+        Flexible furnished living managed through
+        IgniteInno Ventures Sdn Bhd.
+      </div>
+
+    </div>
+
+
+    <div class="footer-text">
+      © <span id="year"></span>
+      IgniteInno Ventures Sdn Bhd.
+      All rights reserved.
+    </div>
+
+  </div>
+
+</footer>
+
+
+
+<!-- =======================================================
+     PROPERTY MODAL
+======================================================= -->
+
+<div
+  class="modal"
+  id="propertyModal"
+>
+
+  <div class="modal-box">
+
+    <button
+      class="modal-close"
+      onclick="closeProperty()"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+
+    <!-- GALLERY -->
+
+    <div
+      class="gallery"
+      id="propertyGallery"
+    >
+
+      <div class="gallery-main">
+
+        <img
+          id="modalMainImage"
+          src=""
+          alt=""
+        >
+
+      </div>
+
+
+      <div class="gallery-side">
+
+        <div id="secondaryImageContainer">
+
+          <img
+            id="modalSecondaryImage"
+            src=""
+            alt=""
+          >
+
+        </div>
+
+
+        <div class="gallery-placeholder">
+
+          <div>
+
+            <strong>
+              Ignite Living
+            </strong>
+
+            <br>
+
+            <small id="galleryMessage">
+              More property photography coming soon
+            </small>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- CONTENT -->
+
+    <div class="modal-body">
+
+      <div
+        class="modal-location"
+        id="modalLocation"
+      ></div>
+
+      <h2
+        class="modal-title"
+        id="modalTitle"
+      ></h2>
+
+      <p
+        class="modal-description"
+        id="modalDescription"
+      ></p>
+
+
+      <div
+        class="modal-features"
+        id="modalFeatures"
+      ></div>
+
+
+      <!-- RENTAL AREA -->
+
+      <div
+        class="rental-panel"
+        id="rentalPanel"
+      >
+
+        <h3>
+          Select your rental period
+        </h3>
+
+
+        <div class="rental-grid">
+
+          <div class="rental-input">
+
+            <label>
+              Move in
+            </label>
+
+            <input
+              type="date"
+              id="modalCheckin"
+            >
+
+          </div>
+
+
+          <div class="rental-input">
+
+            <label>
+              Move out
+            </label>
+
+            <input
+              type="date"
+              id="modalCheckout"
+            >
+
+          </div>
+
+
+          <div class="rental-input">
+
+            <label>
+              Occupants
+            </label>
+
+            <select id="modalGuests">
+
+              <option value="1">
+                1 person
+              </option>
+
+              <option
+                value="2"
+                selected
+              >
+                2 people
+              </option>
+
+              <option value="3">
+                3 people
+              </option>
+
+              <option value="4">
+                4 people
+              </option>
+
+              <option value="5">
+                5 people
+              </option>
+
+              <option value="6">
+                6+ people
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="check-button"
+          onclick="checkRentalPeriod()"
+        >
+          Check rental period
+        </button>
+
+
+        <div
+          class="rental-summary"
+          id="rentalSummary"
+        >
+
+          <div class="summary-row">
+
+            <span>
+              Property
+            </span>
+
+            <strong id="summaryProperty">
+              -
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Rental period
+            </span>
+
+            <strong id="summaryDates">
+              -
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Duration
+            </span>
+
+            <strong id="summaryDuration">
+              -
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Occupants
+            </span>
+
+            <strong id="summaryGuests">
+              -
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row total">
+
+            <span>
+              Availability
+            </span>
+
+            <span style="color:#168552">
+              Available for request
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- CUSTOMER DETAILS -->
+
+        <div
+          class="booking-step"
+          id="bookingStep"
+        >
+
+          <h3>
+            Your details
+          </h3>
+
+
+          <div class="guest-grid">
+
+            <div class="guest-field">
+
+              <label>
+                Full name
+              </label>
+
+              <input
+                type="text"
+                id="guestName"
+                placeholder="Your full name"
+              >
+
+            </div>
+
+
+            <div class="guest-field">
+
+              <label>
+                Mobile number
+              </label>
+
+              <input
+                type="tel"
+                id="guestPhone"
+                placeholder="+60"
+              >
+
+            </div>
+
+
+            <div class="guest-field full">
+
+              <label>
+                Email address
+              </label>
+
+              <input
+                type="email"
+                id="guestEmail"
+                placeholder="name@example.com"
+              >
+
+            </div>
+
+                   </div>
+
+
+          <!-- RENTAL TERMS -->
+
+          <div class="terms-box">
+
+            <label>
+
+              <input
+                type="checkbox"
+                id="acceptTerms"
+              >
+
+              <span>
+                I have read and agree to the
+                <a
+                  href="#"
+                  class="terms-link"
+                  onclick="showTerms(event)"
+                >
+                  Furnished Property Rental Terms
+                </a>
+                applicable to this rental period.
+              </span>
+
+            </label>
+
+          </div>
+
+
+          <button
+            class="continue-button"
+            onclick="continueBooking()"
+          >
+            Continue
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     RENTAL TERMS MODAL
+======================================================= -->
+
+<div
+  class="modal"
+  id="termsModal"
+>
+
+  <div
+    class="modal-box"
+    style="width:min(720px,100%);"
+  >
+
+    <button
+      class="modal-close"
+      onclick="closeTerms()"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+
+    <div
+      class="modal-body"
+      style="padding-top:40px;"
+    >
+
+      <div class="modal-location">
+        IGNITE LIVING
+      </div>
+
+      <h2 class="modal-title">
+        Furnished Property Rental Terms
+      </h2>
+
+      <p class="modal-description">
+        These preliminary terms describe the basis on which
+        an Ignite Living property may be reserved for a
+        selected rental period.
+      </p>
+
+
+      <div
+        style="
+          margin-top:24px;
+          line-height:1.7;
+          font-size:14px;
+          color:#46575d;
+        "
+      >
+
+        <p>
+          <strong>1. Rental period</strong><br>
+          The property is made available for the specific
+          move-in and move-out dates selected and confirmed
+          for the reservation.
+        </p>
+
+        <p>
+          <strong>2. Occupancy</strong><br>
+          The property may only be occupied by the number of
+          occupants declared during the reservation unless
+          otherwise agreed.
+        </p>
+
+        <p>
+          <strong>3. Property use</strong><br>
+          The property is provided as a furnished private
+          residential property for the agreed rental period.
+          Occupants are expected to use the premises
+          responsibly and comply with the applicable property
+          rules.
+        </p>
+
+        <p>
+          <strong>4. Property condition</strong><br>
+          Occupants are responsible for maintaining the
+          property in reasonable condition during the rental
+          period and for reporting any material damage or
+          problem promptly.
+        </p>
+
+        <p>
+          <strong>5. Payment</strong><br>
+          Any applicable rental amount, deposit, payment
+          schedule and cancellation conditions will be shown
+          before final confirmation.
+        </p>
+
+        <p>
+          <strong>6. Confirmation</strong><br>
+          Submission of a rental request does not by itself
+          constitute final confirmation. A reservation becomes
+          confirmed once the applicable confirmation process
+          has been completed.
+        </p>
+
+        <p style="margin-bottom:0;">
+          <strong>7. Final terms</strong><br>
+          The final version of the applicable rental terms will
+          be presented to the customer before a live reservation
+          is completed.
+        </p>
+
+      </div>
+
+
+      <button
+        class="continue-button"
+        onclick="closeTerms()"
+      >
+        Close terms
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     CONFIRMATION MODAL
+======================================================= -->
+
+<div
+  class="modal"
+  id="confirmationModal"
+>
+
+  <div
+    class="modal-box"
+    style="width:min(600px,100%);"
+  >
+
+    <button
+      class="modal-close"
+      onclick="closeConfirmation()"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+
+    <div
+      class="modal-body"
+      style="padding:45px 32px;"
+    >
+
+      <div
+        style="
+          width:58px;
+          height:58px;
+          border-radius:50%;
+          background:#e7f5ef;
+          color:#168552;
+          display:grid;
+          place-items:center;
+          font-size:28px;
+          font-weight:700;
+          margin-bottom:20px;
+        "
+      >
+        ✓
+      </div>
+
+
+      <div class="modal-location">
+        RENTAL REQUEST
+      </div>
+
+      <h2 class="modal-title">
+        Your request is ready.
+      </h2>
+
+
+      <p class="modal-description">
+        This prototype has collected the information required
+        for the rental request. No information has been
+        submitted or stored yet.
+      </p>
+
+
+      <div
+        class="rental-summary visible"
+        style="margin-top:22px;"
+      >
+
+        <div class="summary-row">
+
+          <span>
+            Property
+          </span>
+
+          <strong id="confirmProperty">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Rental period
+          </span>
+
+          <strong id="confirmDates">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Occupants
+          </span>
+
+          <strong id="confirmGuests">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Customer
+          </span>
+
+          <strong id="confirmName">
+            -
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row total">
+
+          <span>
+            Status
+          </span>
+
+          <span style="color:#168552;">
+            Ready for submission
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="continue-button"
+        onclick="closeConfirmation()"
+      >
+        Done
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =======================================================
+     TOAST
+======================================================= -->
+
+<div
+  class="toast"
+  id="toast"
+></div>
+
+
+
+<!-- =======================================================
+     JAVASCRIPT
+======================================================= -->
+
+<script>
+
+/* =========================================================
+   PROPERTY DATABASE
+   Later this information can come from Google Sheets.
+========================================================= */
+
+const properties = {
+
+  IL001: {
+
+    id: "IL001",
+
+    name: "Mayang Sari Beach Cottage",
+
+    location:
+      "Kuala Sungai Baru · Melaka",
+
+    region:
+      "Melaka",
+
+    available:
+      true,
+
+    mainImage:
+      "assets/properties/mayang-sari/cover-pedas.jpg",
+
+    secondaryImage:
+      "assets/properties/mayang-sari/malaka-facing-sea.jpg",
+
+    description:
+      "A furnished private home in Kuala Sungai Baru with a relaxed coastal setting. The property provides a comfortable private space for flexible rental periods, from shorter stays to longer arrangements.",
+
+    features: [
+      "Entire property",
+      "Furnished",
+      "Private parking",
+      "Coastal setting",
+      "Flexible rental period"
+    ]
+
+  },
+
+
+  IL002: {
+
+    id: "IL002",
+
+    name:
+      "Laman Seri Residence",
+
+    location:
+      "Taman Perling · Johor Bahru",
+
+    region:
+      "Johor",
+
+    available:
+      false,
+
+    mainImage:
+      "assets/properties/laman-seri/cover-johor.png",
+
+    secondaryImage:
+      "",
+
+    description:
+      "A private furnished residence in Taman Perling, Johor Bahru. Laman Seri Residence will join the Ignite Living collection soon.",
+
+    features: [
+      "Entire property",
+      "Furnished",
+      "Residential neighbourhood",
+      "Johor Bahru",
+      "Flexible rental period"
+    ]
+
+  },
+
+
+  IL003: {
+
+    id:
+      "IL003",
+
+    name:
+      "Seri Teduh Residence",
+
+    location:
+      "Taman Paya Rumput Perdana · Melaka",
+
+    region:
+      "Melaka",
+
+    available:
+      false,
+
+    mainImage:
+      "assets/properties/seri-teduh/cover-melaka.png",
+
+    secondaryImage:
+      "",
+
+    description:
+      "A private furnished residence in Taman Paya Rumput Perdana, Melaka. Seri Teduh Residence will become available through Ignite Living once preparations are complete.",
+
+    features: [
+      "Entire property",
+      "Furnished",
+      "Residential neighbourhood",
+      "Melaka",
+      "Flexible rental period"
+    ]
+
+  }
+
+};
+
+
+
+/* =========================================================
+   CURRENT PROPERTY
+========================================================= */
+
+let currentProperty = null;
+
+
+
+/* =========================================================
+   INITIAL PAGE SETUP
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+
+    const today =
+      new Date();
+
+    today.setHours(0,0,0,0);
+
+
+    const tomorrow =
+      new Date(today);
+
+    tomorrow.setDate(
+      tomorrow.getDate() + 1
+    );
+
+
+    const todayString =
+      formatInputDate(today);
+
+    const tomorrowString =
+      formatInputDate(tomorrow);
+
+
+    document.getElementById(
+      "searchCheckin"
+    ).min = todayString;
+
+    document.getElementById(
+      "searchCheckout"
+    ).min = tomorrowString;
+
+    document.getElementById(
+      "modalCheckin"
+    ).min = todayString;
+
+    document.getElementById(
+      "modalCheckout"
+    ).min = tomorrowString;
+
+  }
+);
+
+
+
+/* =========================================================
+   FORMAT DATE FOR HTML DATE INPUT
+========================================================= */
+
+function formatInputDate(date){
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(2,"0");
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2,"0");
+
+  return `${year}-${month}-${day}`;
+
+}
+
+
+
+/* =========================================================
+   SEARCH PROPERTIES
+========================================================= */
+
+function searchProperties(){
+
+  const location =
+    document.getElementById(
+      "searchLocation"
+    ).value;
+
+  const checkin =
+    document.getElementById(
+      "searchCheckin"
+    ).value;
+
+  const checkout =
+    document.getElementById(
+      "searchCheckout"
+    ).value;
+
+  const guests =
+    document.getElementById(
+      "searchGuests"
+    ).value;
+
+
+  if(
+    checkin &&
+    checkout &&
+    new Date(checkout) <= new Date(checkin)
+  ){
+
+    showToast(
+      "Move-out date must be after the move-in date."
+    );
+
+    return;
+
+  }
+
+
+  const cards =
+    document.querySelectorAll(
+      ".property"
+    );
+
+
+  let visibleCount = 0;
+
+
+  cards.forEach(
+    function(card){
+
+      const cardLocation =
+        card.dataset.location;
+
+      const matches =
+        !location ||
+        cardLocation === location;
+
+
+      if(matches){
+
+        card.classList.remove(
+          "hidden"
+        );
+
+        visibleCount++;
+
+      }else{
+
+        card.classList.add(
+          "hidden"
+        );
+
+      }
+
+    }
+  );
+
+
+  document.getElementById(
+    "resultCount"
+  ).textContent =
+    visibleCount === 1
+      ? "1 property"
+      : `${visibleCount} properties`;
+
+
+  document.getElementById(
+    "homes"
+  ).scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+
+  /*
+    Save the selected search dates and occupants.
+    If the customer opens an available property,
+    these values will automatically be transferred
+    into the property rental form.
+  */
+
+  window.searchSelection = {
+    checkin,
+    checkout,
+    guests
+  };
+
+}
+
+
+
+/* =========================================================
+   OPEN PROPERTY
+========================================================= */
+
+function openProperty(propertyId){
+
+  const property =
+    properties[propertyId];
+
+
+  if(!property){
+    return;
+  }
+
+
+  currentProperty =
+    property;
+
+
+  document.getElementById(
+    "modalLocation"
+  ).textContent =
+    property.location;
+
+
+  document.getElementById(
+    "modalTitle"
+  ).textContent =
+    property.name;
+
+
+  document.getElementById(
+    "modalDescription"
+  ).textContent =
+    property.description;
+
+
+  const mainImage =
+    document.getElementById(
+      "modalMainImage"
+    );
+
+  mainImage.src =
+    property.mainImage;
+
+  mainImage.alt =
+    property.name;
+
+
+  const secondaryImage =
+    document.getElementById(
+      "modalSecondaryImage"
+    );
+
+  const secondaryContainer =
+    document.getElementById(
+      "secondaryImageContainer"
+    );
+
+
+  if(property.secondaryImage){
+
+    secondaryImage.src =
+      property.secondaryImage;
+
+    secondaryImage.alt =
+      `${property.name} surroundings`;
+
+    secondaryContainer.style.display =
+      "block";
+
+  }else{
+
+    secondaryImage.removeAttribute(
+      "src"
+    );
+
+    secondaryContainer.style.display =
+      "none";
+
+  }
+
+
+  document.getElementById(
+    "galleryMessage"
+  ).textContent =
+    property.available
+      ? "More property photography will be added"
+      : "More information coming soon";
+
+
+  const featureContainer =
+    document.getElementById(
+      "modalFeatures"
+    );
+
+
+  featureContainer.innerHTML =
+    property.features
+      .map(
+        feature =>
+          `<span class="modal-feature">${feature}</span>`
+      )
+      .join("");
+
+
+  const rentalPanel =
+    document.getElementById(
+      "rentalPanel"
+    );
+
+
+  if(property.available){
+
+    rentalPanel.style.display =
+      "block";
+
+  }else{
+
+    rentalPanel.style.display =
+      "none";
+
+  }
+
+
+  resetBookingForm();
+
+
+  if(
+    property.available &&
+    window.searchSelection
+  ){
+
+    document.getElementById(
+      "modalCheckin"
+    ).value =
+      window.searchSelection.checkin || "";
+
+    document.getElementById(
+      "modalCheckout"
+    ).value =
+      window.searchSelection.checkout || "";
+
+    document.getElementById(
+      "modalGuests"
+    ).value =
+      window.searchSelection.guests || "2";
+
+  }
+
+
+  document.getElementById(
+    "propertyModal"
+  ).classList.add(
+    "open"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+
+/* =========================================================
+   CLOSE PROPERTY
+========================================================= */
+
+function closeProperty(){
+
+  document.getElementById(
+    "propertyModal"
+  ).classList.remove(
+    "open"
+  );
+
+  document.body.style.overflow =
+    "";
+
+}
+
+
+
+/* =========================================================
+   RESET BOOKING FORM
+========================================================= */
+
+function resetBookingForm(){
+
+  document.getElementById(
+    "rentalSummary"
+  ).classList.remove(
+    "visible"
+  );
+
+
+  document.getElementById(
+    "bookingStep"
+  ).classList.remove(
+    "visible"
+  );
+
+
+  document.getElementById(
+    "guestName"
+  ).value = "";
+
+
+  document.getElementById(
+    "guestPhone"
+  ).value = "";
+
+
+  document.getElementById(
+    "guestEmail"
+  ).value = "";
+
+
+  document.getElementById(
+    "acceptTerms"
+  ).checked = false;
+
+}
+
+
+
+/* =========================================================
+   CHECK RENTAL PERIOD
+========================================================= */
+
+function checkRentalPeriod(){
+
+  if(
+    !currentProperty ||
+    !currentProperty.available
+  ){
+
+    showToast(
+      "This property is not yet available."
+    );
+
+    return;
+
+  }
+
+
+  const checkin =
+    document.getElementById(
+      "modalCheckin"
+    ).value;
+
+  const checkout =
+    document.getElementById(
+      "modalCheckout"
+    ).value;
+
+  const guests =
+    document.getElementById(
+      "modalGuests"
+    ).value;
+
+
+  if(
+    !checkin ||
+    !checkout
+  ){
+
+    showToast(
+      "Please select both move-in and move-out dates."
+    );
+
+    return;
+
+  }
+
+
+  const start =
+    new Date(
+      checkin + "T00:00:00"
+    );
+
+  const end =
+    new Date(
+      checkout + "T00:00:00"
+    );
+
+
+  if(end <= start){
+
+    showToast(
+      "Move-out date must be after the move-in date."
+    );
+
+    return;
+
+  }
+
+
+  const today =
+    new Date();
+
+  today.setHours(
+    0,0,0,0
+  );
+
+
+  if(start < today){
+
+    showToast(
+      "Move-in date cannot be in the past."
+    );
+
+    return;
+
+  }
+
+
+  const milliseconds =
+    end - start;
+
+  const days =
+    Math.round(
+      milliseconds /
+      (1000 * 60 * 60 * 24)
+    );
+
+
+  document.getElementById(
+    "summaryProperty"
+  ).textContent =
+    currentProperty.name;
+
+
+  document.getElementById(
+    "summaryDates"
+  ).textContent =
+    `${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+
+
+  document.getElementById(
+    "summaryDuration"
+  ).textContent =
+    days === 1
+      ? "1 day"
+      : `${days} days`;
+
+
+  document.getElementById(
+    "summaryGuests"
+  ).textContent =
+    guests === "1"
+      ? "1 occupant"
+      : `${guests} occupants`;
+
+
+  document.getElementById(
+    "rentalSummary"
+  ).classList.add(
+    "visible"
+  );
+
+
+  document.getElementById(
+    "bookingStep"
+  ).classList.add(
+    "visible"
+  );
+
+
+  window.currentRental = {
+
+    propertyId:
+      currentProperty.id,
+
+    property:
+      currentProperty.name,
+
+    checkin,
+
+    checkout,
+
+    days,
+
+    guests
+
+  };
+
+
+  /*
+    IMPORTANT:
+
+    At the moment this is only a visual prototype.
+
+    When Google Sheets is connected,
+    this is the point where Apps Script
+    will check whether the requested dates
+    overlap with an existing confirmed booking.
+  */
+
+}
+
+
+
+/* =========================================================
+   DISPLAY DATE
+========================================================= */
+
+function formatDisplayDate(date){
+
+  return date.toLocaleDateString(
+    "en-MY",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   CONTINUE BOOKING
+========================================================= */
+
+function continueBooking(){
+
+  if(!window.currentRental){
+
+    showToast(
+      "Please select and check your rental period first."
+    );
+
+    return;
+
+  }
+
+
+  const name =
+    document.getElementById(
+      "guestName"
+    ).value.trim();
+
+
+  const phone =
+    document.getElementById(
+      "guestPhone"
+    ).value.trim();
+
+
+  const email =
+    document.getElementById(
+      "guestEmail"
+    ).value.trim();
+
+
+  const accepted =
+    document.getElementById(
+      "acceptTerms"
+    ).checked;
+
+
+  if(!name){
+
+    showToast(
+      "Please enter your full name."
+    );
+
+    return;
+
+  }
+
+
+  if(!phone){
+
+    showToast(
+      "Please enter your mobile number."
+    );
+
+    return;
+
+  }
+
+
+  if(!email){
+
+    showToast(
+      "Please enter your email address."
+    );
+
+    return;
+
+  }
+
+
+  if(!isValidEmail(email)){
+
+    showToast(
+      "Please enter a valid email address."
+    );
+
+    return;
+
+  }
+
+
+  if(!accepted){
+
+    showToast(
+      "Please review and accept the rental terms."
+    );
+
+    return;
+
+  }
+
+
+  /*
+    Store the complete request temporarily
+    in JavaScript.
+
+    Later this object will be sent to
+    Google Apps Script and Google Sheets.
+  */
+
+  window.pendingBooking = {
+
+    bookingId:
+      createTemporaryBookingId(),
+
+    propertyId:
+      window.currentRental.propertyId,
+
+    property:
+      window.currentRental.property,
+
+    checkin:
+      window.currentRental.checkin,
+
+    checkout:
+      window.currentRental.checkout,
+
+    duration:
+      window.currentRental.days,
+
+    occupants:
+      window.currentRental.guests,
+
+    customerName:
+      name,
+
+    customerPhone:
+      phone,
+
+    customerEmail:
+      email,
+
+    agreementVersion:
+      "1.0",
+
+    agreementAccepted:
+      true,
+
+    acceptedAt:
+      new Date().toISOString(),
+
+    status:
+      "REQUEST_READY"
+
+  };
+
+
+  populateConfirmation();
+
+
+  document.getElementById(
+    "propertyModal"
+  ).classList.remove(
+    "open"
+  );
+
+
+  document.getElementById(
+    "confirmationModal"
+  ).classList.add(
+    "open"
+  );
+
+}
+
+
+
+/* =========================================================
+   POPULATE CONFIRMATION
+========================================================= */
+
+function populateConfirmation(){
+
+  const booking =
+    window.pendingBooking;
+
+
+  if(!booking){
+    return;
+  }
+
+
+  const start =
+    new Date(
+      booking.checkin + "T00:00:00"
+    );
+
+
+  const end =
+    new Date(
+      booking.checkout + "T00:00:00"
+    );
+
+
+  document.getElementById(
+    "confirmProperty"
+  ).textContent =
+    booking.property;
+
+
+  document.getElementById(
+    "confirmDates"
+  ).textContent =
+    `${formatDisplayDate(start)} – ${formatDisplayDate(end)}`;
+
+
+  document.getElementById(
+    "confirmGuests"
+  ).textContent =
+    booking.occupants === "1"
+      ? "1 occupant"
+      : `${booking.occupants} occupants`;
+
+
+  document.getElementById(
+    "confirmName"
+  ).textContent =
+    booking.customerName;
+
+}
+
+
+
+/* =========================================================
+   TEMPORARY BOOKING ID
+========================================================= */
+
+function createTemporaryBookingId(){
+
+  const now =
+    new Date();
+
+
+  const year =
+    now.getFullYear();
+
+
+  const month =
+    String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const day =
+    String(
+      now.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const hours =
+    String(
+      now.getHours()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const minutes =
+    String(
+      now.getMinutes()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const seconds =
+    String(
+      now.getSeconds()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const propertyId =
+    currentProperty
+      ? currentProperty.id
+      : "IL";
+
+
+  return (
+    `${propertyId}-${year}${month}${day}-${hours}${minutes}${seconds}`
+  );
+
+}
+
+
+
+/* =========================================================
+   EMAIL VALIDATION
+========================================================= */
+
+function isValidEmail(email){
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    email
+  );
+
+}
+
+
+
+/* =========================================================
+   RENTAL TERMS
+========================================================= */
+
+function showTerms(event){
+
+  if(event){
+    event.preventDefault();
+  }
+
+
+  document.getElementById(
+    "termsModal"
+  ).classList.add(
+    "open"
+  );
+
+}
+
+
+
+function closeTerms(){
+
+  document.getElementById(
+    "termsModal"
+  ).classList.remove(
+    "open"
+  );
+
+}
+
+
+
+/* =========================================================
+   CONFIRMATION
+========================================================= */
+
+function closeConfirmation(){
+
+  document.getElementById(
+    "confirmationModal"
+  ).classList.remove(
+    "open"
+  );
+
+
+  document.body.style.overflow =
+    "";
+
+
+  /*
+    For the prototype we clear the active
+    rental after the confirmation screen
+    is closed.
+
+    Once Google Sheets is connected,
+    this behaviour can be changed.
+  */
+
+  window.currentRental =
+    null;
+
+}
+
+
+
+/* =========================================================
+   MANAGE MY STAY
+========================================================= */
+
+function manageStay(event){
+
+  if(event){
+    event.preventDefault();
+  }
+
+
+  /*
+    This will eventually open a proper
+    booking-management page where the
+    customer can enter:
+
+    Booking reference
+    +
+    Email / mobile number
+
+    For Draft 2 we simply show a message.
+  */
+
+  showToast(
+    "Manage My Stay will be activated when the booking database is connected."
+  );
+
+}
+
+
+
+/* =========================================================
+   TOAST MESSAGE
+========================================================= */
+
+let toastTimer;
+
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      function(){
+
+        toast.classList.remove(
+          "show"
+        );
+
+      },
+      3200
+    );
+
+}
+
+
+
+/* =========================================================
+   UPDATE MOVE-OUT MINIMUM DATE
+========================================================= */
+
+document.getElementById(
+  "searchCheckin"
+).addEventListener(
+  "change",
+  function(){
+
+    updateCheckoutMinimum(
+      "searchCheckin",
+      "searchCheckout"
+    );
+
+  }
+);
+
+
+document.getElementById(
+  "modalCheckin"
+).addEventListener(
+  "change",
+  function(){
+
+    updateCheckoutMinimum(
+      "modalCheckin",
+      "modalCheckout"
+    );
+
+  }
+);
+
+
+
+function updateCheckoutMinimum(
+  checkinId,
+  checkoutId
+){
+
+  const checkin =
+    document.getElementById(
+      checkinId
+    ).value;
+
+
+  if(!checkin){
+    return;
+  }
+
+
+  const start =
+    new Date(
+      checkin + "T00:00:00"
+    );
+
+
+  const nextDay =
+    new Date(
+      start
+    );
+
+
+  nextDay.setDate(
+    nextDay.getDate() + 1
+  );
+
+
+  const checkout =
+    document.getElementById(
+      checkoutId
+    );
+
+
+  checkout.min =
+    formatInputDate(
+      nextDay
+    );
+
+
+  if(
+    checkout.value &&
+    new Date(
+      checkout.value + "T00:00:00"
+    ) <= start
+  ){
+
+    checkout.value =
+      "";
+
+  }
+
+}
+
+
+
+/* =========================================================
+   CLOSE MODALS BY CLICKING BACKDROP
+========================================================= */
+
+document.getElementById(
+  "propertyModal"
+).addEventListener(
+  "click",
+  function(event){
+
+    if(
+      event.target === this
+    ){
+
+      closeProperty();
+
+    }
+
+  }
+);
+
+
+document.getElementById(
+  "termsModal"
+).addEventListener(
+  "click",
+  function(event){
+
+    if(
+      event.target === this
+    ){
+
+      closeTerms();
+
+    }
+
+  }
+);
+
+
+document.getElementById(
+  "confirmationModal"
+).addEventListener(
+  "click",
+  function(event){
+
+    if(
+      event.target === this
+    ){
+
+      closeConfirmation();
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   ESCAPE KEY CLOSES TOP MODAL
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    if(
+      event.key !== "Escape"
+    ){
+      return;
+    }
+
+
+    const termsModal =
+      document.getElementById(
+        "termsModal"
+      );
+
+
+    const confirmationModal =
+      document.getElementById(
+        "confirmationModal"
+      );
+
+
+    const propertyModal =
+      document.getElementById(
+        "propertyModal"
+      );
+
+
+    if(
+      termsModal.classList.contains(
+        "open"
+      )
+    ){
+
+      closeTerms();
+
+      return;
+
+    }
+
+
+    if(
+      confirmationModal.classList.contains(
+        "open"
+      )
+    ){
+
+      closeConfirmation();
+
+      return;
+
+    }
+
+
+    if(
+      propertyModal.classList.contains(
+        "open"
+      )
+    ){
+
+      closeProperty();
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   IMAGE FALLBACKS
+========================================================= */
+
+document.querySelectorAll(
+  ".property-image img"
+).forEach(
+  function(image){
+
+    image.addEventListener(
+      "error",
+      function(){
+
+        this.style.display =
+          "none";
+
+
+        const container =
+          this.closest(
+            ".property-image"
+          );
+
+
+        if(container){
+
+          container.style.background =
+            "linear-gradient(135deg,#073b4c,#0d8795)";
+
+        }
+
+      }
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   FUTURE GOOGLE SHEETS CONNECTION
+
+   Later we will replace the prototype booking behaviour
+   with something similar to:
+
+   fetch(GOOGLE_APPS_SCRIPT_URL, {
+     method: "POST",
+     body: JSON.stringify(window.pendingBooking)
+   })
+
+   Google Apps Script will then:
+
+   1. Check availability again.
+   2. Prevent overlapping confirmed rentals.
+   3. Generate the permanent booking reference.
+   4. Save the customer details.
+   5. Save the rental period.
+   6. Record the accepted agreement version.
+   7. Record the acceptance timestamp.
+   8. Return the booking status.
+========================================================= */
+
+</script>
+
+</body>
+</html>
