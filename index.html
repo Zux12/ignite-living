@@ -1,1 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#073b4c">
 
+<title>Ignite Living | Flexible Furnished Living</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#073b4c;
+  --navy2:#0b5268;
+  --teal:#0e8392;
+  --cream:#f7f6f1;
+  --gold:#e9ad38;
+  --text:#17252a;
+  --muted:#647278;
+  --line:#dfe5e6;
+  --white:#fff;
+  --shadow:0 12px 35px rgba(15,45,55,.12);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"DM Sans",sans-serif;
+  color:var(--text);
+  background:#fff;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+/* HEADER */
+header{
+  background:var(--navy);
+  color:white;
+}
+
+.nav{
+  max-width:1240px;
+  margin:auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-weight:700;
+  letter-spacing:.8px;
+  font-size:21px;
+}
+
+.brand-mark{
+  width:37px;
+  height:37px;
+  border:2px solid white;
+  border-radius:50% 50% 50% 10%;
+  display:grid;
+  place-items:center;
+  transform:rotate(-12deg);
+}
+
+.brand-mark span{
+  transform:rotate(12deg);
+  font-family:"Playfair Display";
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:26px;
+  font-size:14px;
+}
+
+.nav-right a{
+  color:white;
+  text-decoration:none;
+}
+
+.manage{
+  border:1px solid rgba(255,255,255,.5);
+  padding:10px 16px;
+  border-radius:8px;
+}
+
+/* HERO */
+.hero{
+  background:
+    radial-gradient(circle at 85% 10%,rgba(46,179,185,.25),transparent 30%),
+    linear-gradient(135deg,#073b4c,#075c70);
+  color:white;
+  padding:55px 24px 94px;
+}
+
+.hero-inner{
+  max-width:1240px;
+  margin:auto;
+}
+
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:2.2px;
+  font-size:12px;
+  opacity:.78;
+  margin-bottom:14px;
+}
+
+.hero h1{
+  font-family:"Playfair Display",serif;
+  font-size:clamp(38px,5vw,64px);
+  line-height:1.03;
+  max-width:760px;
+  margin:0;
+}
+
+.hero p{
+  max-width:650px;
+  font-size:18px;
+  line-height:1.6;
+  color:#d8eaed;
+  margin:18px 0 0;
+}
+
+/* SEARCH */
+.search-wrap{
+  max-width:1240px;
+  margin:-42px auto 0;
+  padding:0 24px;
+  position:relative;
+  z-index:4;
+}
+
+.searchbar{
+  background:white;
+  border-radius:14px;
+  box-shadow:0 18px 50px rgba(0,0,0,.18);
+  padding:8px;
+  display:grid;
+  grid-template-columns:1.25fr 1fr 1fr .8fr auto;
+  gap:0;
+}
+
+.search-field{
+  padding:12px 18px;
+  border-right:1px solid var(--line);
+}
+
+.search-field label{
+  display:block;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  font-weight:700;
+  color:#617078;
+  margin-bottom:5px;
+}
+
+.search-field input,
+.search-field select{
+  width:100%;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#17252a;
+}
+
+.search-button{
+  border:0;
+  background:var(--teal);
+  color:white;
+  border-radius:10px;
+  padding:0 29px;
+  font-weight:700;
+  font-size:15px;
+}
+
+.search-button:hover{background:#096e7a}
+
+/* MAIN */
+main{
+  max-width:1240px;
+  margin:auto;
+  padding:64px 24px 80px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  margin-bottom:25px;
+}
+
+.section-head h2{
+  margin:0 0 6px;
+  font-family:"Playfair Display";
+  font-size:34px;
+}
+
+.section-head p{
+  margin:0;
+  color:var(--muted);
+}
+
+.count{
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* PROPERTY LISTING */
+.property-list{
+  display:flex;
+  flex-direction:column;
+  gap:25px;
+}
+
+.property{
+  border:1px solid var(--line);
+  border-radius:15px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:390px 1fr;
+  min-height:260px;
+  background:white;
+  transition:.25s;
+}
+
+.property:hover{
+  box-shadow:var(--shadow);
+  transform:translateY(-2px);
+}
+
+.property-image{
+  position:relative;
+  min-height:260px;
+  overflow:hidden;
+  background:#dfe7e8;
+}
+
+.property-image img{
+  width:100%;
+  height:100%;
+  position:absolute;
+  object-fit:cover;
+  transition:transform .5s ease;
+}
+
+.property:hover img{transform:scale(1.035)}
+
+.image-placeholder{
+  height:100%;
+  min-height:260px;
+  display:grid;
+  place-items:center;
+  background:
+    linear-gradient(135deg,rgba(7,59,76,.8),rgba(14,131,146,.5)),
+    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=75");
+  background-size:cover;
+  background-position:center;
+  color:white;
+  text-align:center;
+  padding:30px;
+}
+
+.image-placeholder small{
+  display:block;
+  margin-top:8px;
+  opacity:.8;
+}
+
+.badge{
+  position:absolute;
+  top:15px;
+  left:15px;
+  z-index:2;
+  background:white;
+  padding:7px 11px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:700;
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+
+.badge.soon{
+  background:#17252a;
+  color:white;
+}
+
+.property-info{
+  padding:25px 28px;
+  display:flex;
+  flex-direction:column;
+}
+
+.property-location{
+  font-size:13px;
+  color:var(--teal);
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.property h3{
+  font-family:"Playfair Display";
+  font-size:27px;
+  margin:0 0 8px;
+}
+
+.property-sub{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.rating{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:14px;
+  font-size:13px;
+}
+
+.rating-box{
+  background:var(--navy);
+  color:white;
+  padding:5px 7px;
+  border-radius:5px 5px 5px 0;
+  font-weight:700;
+}
+
+.features{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:18px 0;
+}
+
+.feature{
+  font-size:12px;
+  background:#f1f5f5;
+  padding:6px 9px;
+  border-radius:5px;
+}
+
+.property-bottom{
+  margin-top:auto;
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.flexible{
+  font-size:12px;
+  color:#5e6b70;
+}
+
+.flexible strong{
+  color:#21784a;
+}
+
+.price{
+  text-align:right;
+}
+
+.price small{
+  color:var(--muted);
+  display:block;
+}
+
+.price strong{
+  display:block;
+  font-size:24px;
+}
+
+.view-btn{
+  border:0;
+  background:var(--teal);
+  color:white;
+  font-weight:700;
+  padding:11px 17px;
+  border-radius:7px;
+  margin-top:8px;
+}
+
+.view-btn:disabled{
+  background:#d7dddf;
+  color:#788488;
+  cursor:not-allowed;
+}
+
+/* TRUST STRIP */
+.trust{
+  margin-top:65px;
+  background:var(--cream);
+  padding:35px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
+  border-radius:14px;
+}
+
+.trust-item strong{
+  display:block;
+  margin-bottom:6px;
+}
+
+.trust-item span{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* FOOTER */
+footer{
+  background:#062f3d;
+  color:white;
+  padding:42px 24px;
+}
+
+.footer-inner{
+  max-width:1240px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  gap:30px;
+}
+
+.footer-small{
+  color:#aac1c7;
+  font-size:13px;
+  max-width:480px;
+  line-height:1.6;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.58);
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal.open{display:flex}
+
+.modal-box{
+  width:min(720px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:white;
+  border-radius:16px;
+  position:relative;
+}
+
+.modal-image{
+  height:260px;
+  background:
+    linear-gradient(0deg,rgba(0,0,0,.15),rgba(0,0,0,.05)),
+    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=75");
+  background-size:cover;
+  background-position:center;
+}
+
+.close{
+  position:absolute;
+  right:16px;
+  top:16px;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:0;
+  background:white;
+  font-size:20px;
+  z-index:3;
+}
+
+.modal-content{
+  padding:28px;
+}
+
+.modal-content h2{
+  font-family:"Playfair Display";
+  margin:0 0 6px;
+}
+
+.booking-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin:22px 0;
+}
+
+.booking-input{
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:8px;
+}
+
+.booking-input label{
+  font-size:11px;
+  font-weight:700;
+  display:block;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+
+.booking-input input,
+.booking-input select{
+  width:100%;
+  border:0;
+  outline:0;
+}
+
+.terms{
+  background:#f5f8f8;
+  padding:15px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.confirm{
+  width:100%;
+  margin-top:17px;
+  border:0;
+  background:var(--teal);
+  color:white;
+  padding:14px;
+  border-radius:8px;
+  font-weight:700;
+}
+
+/* MOBILE */
+@media(max-width:850px){
+  .nav-right a:not(.manage){display:none}
+
+  .hero{
+    padding-top:40px;
+    padding-bottom:85px;
+  }
+
+  .searchbar{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .search-field{
+    border-bottom:1px solid var(--line);
+  }
+
+  .search-button{
+    min-height:54px;
+    grid-column:1/-1;
+  }
+
+  .property{
+    grid-template-columns:1fr;
+  }
+
+  .property-image{
+    min-height:235px;
+  }
+
+  .trust{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:520px){
+  .hero h1{font-size:39px}
+
+  .search-wrap{padding:0 14px}
+
+  .searchbar{
+    grid-template-columns:1fr;
+  }
+
+  .search-field{
+    border-right:0;
+  }
+
+  main{padding-left:16px;padding-right:16px}
+
+  .section-head{
+    align-items:start;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .property-info{
+    padding:21px;
+  }
+
+  .property-bottom{
+    align-items:start;
+    flex-direction:column;
+  }
+
+  .price{
+    width:100%;
+    text-align:left;
+  }
+
+  .view-btn{
+    width:100%;
+  }
+
+  .booking-grid{
+    grid-template-columns:1fr;
+  }
+
+  .footer-inner{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+
+    <div class="brand">
+      <div class="brand-mark"><span>IL</span></div>
+      IGNITE LIVING
+    </div>
+
+    <div class="nav-right">
+      <a href="#homes">Our Homes</a>
+      <a href="#about">How it works</a>
+      <a href="#" class="manage">Manage my stay</a>
+    </div>
+
+  </div>
+</header>
+
+
+<section class="hero">
+  <div class="hero-inner">
+
+    <div class="eyebrow">Ignite Living • Malaysia</div>
+
+    <h1>
+      A home for however
+      long you need it.
+    </h1>
+
+    <p>
+      Discover furnished private homes for flexible living periods —
+      from a quick escape to an extended stay.
+    </p>
+
+  </div>
+</section>
+
+
+<div class="search-wrap">
+  <div class="searchbar">
+
+    <div class="search-field">
+      <label>Where</label>
+      <select id="location">
+        <option value="">Anywhere in Malaysia</option>
+        <option>Melaka</option>
+        <option>Johor Bahru</option>
+      </select>
+    </div>
+
+    <div class="search-field">
+      <label>Move in</label>
+      <input type="date" id="checkin">
+    </div>
+
+    <div class="search-field">
+      <label>Move out</label>
+      <input type="date" id="checkout">
+    </div>
+
+    <div class="search-field">
+      <label>Occupants</label>
+      <select id="guests">
+        <option>1 person</option>
+        <option selected>2 people</option>
+        <option>3 people</option>
+        <option>4 people</option>
+        <option>5+ people</option>
+      </select>
+    </div>
+
+    <button class="search-button" onclick="searchHomes()">
+      Find a home
+    </button>
+
+  </div>
+</div>
+
+
+<main>
+
+  <section id="homes">
+
+    <div class="section-head">
+      <div>
+        <h2>Places to call home</h2>
+        <p>Private furnished properties managed through Ignite Living.</p>
+      </div>
+
+      <div class="count" id="resultCount">3 properties</div>
+    </div>
+
+
+    <div class="property-list">
+
+      <!-- IL001 -->
+      <article class="property" data-location="Melaka">
+
+        <div class="property-image">
+
+          <!-- Temporary image until Mayang Sari gallery is supplied -->
+          <div class="image-placeholder">
+            <div>
+              <strong>Mayang Sari Beach Cottage</strong>
+              <small>Property photography coming into Ignite Living</small>
+            </div>
+          </div>
+
+          <span class="badge">Available</span>
+        </div>
+
+
+        <div class="property-info">
+
+          <div class="property-location">
+            KUALA SUNGAI BARU · MELAKA
+          </div>
+
+          <h3>Mayang Sari Beach Cottage</h3>
+
+          <div class="property-sub">
+            Private furnished home · Near the coast
+          </div>
+
+          <div class="rating">
+            <span class="rating-box">4.3</span>
+            <strong>Very good</strong>
+            <span style="color:#7b878b">14 reviews</span>
+          </div>
+
+          <div class="features">
+            <span class="feature">Entire property</span>
+            <span class="feature">Furnished</span>
+            <span class="feature">Private parking</span>
+            <span class="feature">Flexible period</span>
+          </div>
+
+          <div class="property-bottom">
+
+            <div class="flexible">
+              <strong>Flexible living</strong><br>
+              Select
