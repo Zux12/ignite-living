@@ -3426,5 +3426,97 @@ addSummaryRow(confirmBox,'Booking deposit (not yet paid)','confirmDeposit');
 addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
 
 </script>
+<style>
+#stayModal .modal-box{width:min(850px,100%)}
+.stay-head{padding:32px 30px 22px;background:#073b4c;color:white;border-radius:12px 12px 0 0}
+.stay-head h2{font:32px 'Playfair Display',serif;margin:6px 42px 8px 0}.stay-head p{color:#d4e8ed;font-size:14px;margin:0;line-height:1.6}
+.stay-content{padding:24px 30px 30px}.stay-label{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}.stay-input{width:100%;border:1px solid #cedbdd;border-radius:7px;padding:12px;background:white;color:#18282d;min-width:0}
+.stay-note{font-size:13px;color:#64777e;line-height:1.6}.stay-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stay-card{border:1px solid #dfe6e8;border-radius:10px;padding:20px;margin:16px 0}.stay-card h3{margin:0 0 8px;font-size:21px}.stay-card dl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.stay-card dt{color:#64777e;font-size:13px}.stay-card dd{margin:0;text-align:right;overflow-wrap:anywhere;font-weight:600}.stay-status{display:inline-block;border-radius:20px;padding:5px 10px;background:#f0f5f5;font-size:12px;margin:4px 6px 4px 0}.stay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stay-methods button{padding:12px 7px;border:1px solid #dce3e4;border-radius:7px;background:#f0f2f2;color:#78868b}.stay-methods .active-method{background:#e9f7f6;border-color:#0d8795;color:#086d79;opacity:1}.stay-methods small{display:block;margin-top:4px}.stay-toolbar{display:flex;justify-content:space-between;gap:12px}.stay-toolbar button{background:white;border:1px solid #b9cccf;padding:9px 14px;border-radius:6px;color:#073b4c}.stay-reference{font-size:12px;color:#657b82;overflow-wrap:anywhere}.stay-proof{padding:12px;background:#f5f8f8;border-radius:7px;margin-top:8px;font-size:13px;line-height:1.6}.stay-message{line-height:1.6;padding:12px 0;color:#07566a;overflow-wrap:anywhere}.stay-bank{background:#f5f8f8;padding:14px;border-radius:8px;line-height:1.7;font-size:14px}.stay-hidden{display:none!important}
+@media(max-width:550px){.stay-content{padding:20px 17px}.stay-head{padding:28px 18px 20px}.stay-grid{grid-template-columns:1fr}.stay-methods{grid-template-columns:1fr 1fr}.stay-card{padding:15px}.stay-head h2{font-size:28px}.stay-card dl{grid-template-columns:1fr 1fr}}
+</style>
+<div class="modal" id="stayModal" role="dialog" aria-modal="true" aria-labelledby="stayTitle">
+ <div class="modal-box">
+  <button type="button" class="modal-close" id="stayClose" aria-label="Close manage my stay">×</button>
+  <div class="stay-head"><div class="hero-label">IGNITE LIVING · GUEST ACCESS</div><h2 id="stayTitle">Manage my stay</h2><p>Your booking details, payment balance and proof of payment, in one place.</p></div>
+  <div class="stay-content">
+   <section id="stayLogin">
+    <form id="staySendForm"><label class="stay-label" for="stayIdentifier">Booking email or mobile number</label><input class="stay-input" id="stayIdentifier" autocomplete="username" maxlength="180" required placeholder="Email or +60 mobile number"><p class="stay-note">Use the details registered with your booking. A one-time code will be sent to your registered email, including when you enter your mobile number.</p><button class="continue-button" type="submit">Send sign-in code</button></form>
+    <form id="stayCodeForm" class="stay-hidden"><label class="stay-label" for="stayCode">Six-digit email code</label><input class="stay-input" id="stayCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="000000"><button class="check-button" type="submit">Sign in</button><p class="stay-note">Code expires after 10 minutes. To resend, use “Send sign-in code” above.</p></form>
+    <p class="stay-note">For now, contact Ignite Living to register or correct your booking details.</p>
+   </section>
+   <section id="stayAccount" class="stay-hidden"><div class="stay-toolbar"><button type="button" id="stayRefresh">Refresh bookings</button><button type="button" id="stayLogout">Sign out</button></div><div id="stayBookings"></div></section>
+   <p id="stayMessage" class="stay-message" role="status" aria-live="polite"></p>
+  </div>
+ </div>
+</div>
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ let token='',challenge='',busy=false,previousFocus=null;
+ const currency=n=>n===null||n===undefined?'To be confirmed':new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR'}).format(n);
+ const say=text=>{$('stayMessage').textContent=text;};
+ const label=value=>String(value||'').replaceAll('_',' ').toLowerCase().replace(/^./,c=>c.toUpperCase());
+ function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+ async function api(action,data={}){
+  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),60000);
+  try{
+   const response=await fetch(BOOKING_API,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'stay.'+action,...data}),signal:abort.signal});
+   if(!response.ok)throw new Error('Connection failed. Please try again.');
+   const result=await response.json();if(result.ok!==true)throw new Error(result.message||'Unable to complete this action.');return result;
+  }catch(e){if(e.name==='AbortError')throw new Error('The request timed out. Refresh your bookings before retrying an upload.');if(e instanceof SyntaxError)throw new Error('Please contact Ignite Living: guest access is not available yet.');throw e;}finally{clearTimeout(timer);}
+ }
+ function controls(disabled){$('stayModal').querySelectorAll('button,input').forEach(n=>{if(n.dataset.alwaysDisabled)return;n.disabled=disabled;});}
+ async function run(work){if(busy)return;busy=true;controls(true);try{await work();}catch(e){say(e.message||'Connection unavailable. Please try again.');}finally{busy=false;controls(false);}}
+ async function refresh(){const result=await api('list',{token});render(result);}
+ function close(){if(busy)return;$('stayModal').classList.remove('open');document.body.style.overflow=document.querySelector('.modal.open')?'hidden':'';previousFocus?.focus();}
+ window.manageStay=function(event){event?.preventDefault();previousFocus=document.activeElement;$('stayModal').classList.add('open');document.body.style.overflow='hidden';(token?$('stayRefresh'):$('stayIdentifier')).focus();};
+ $('stayClose').onclick=close;$('stayModal').onclick=e=>{if(e.target===$('stayModal'))close();};
+ document.addEventListener('keydown',e=>{
+  if(!$('stayModal').classList.contains('open'))return;
+  if(e.key==='Escape'){e.stopImmediatePropagation();close();}
+  if(e.key==='Tab'){const items=[...$('stayModal').querySelectorAll('button,input,a')].filter(n=>!n.disabled&&n.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
+ },true);
+ $('staySendForm').onsubmit=e=>{e.preventDefault();run(async()=>{say('Requesting your sign-in code…');const r=await api('sendCode',{identifier:$('stayIdentifier').value.trim()});challenge=r.challenge;$('stayCodeForm').classList.remove('stay-hidden');$('stayCode').value='';say(r.message);});};
+ $('stayCodeForm').onsubmit=e=>{e.preventDefault();run(async()=>{say('Verifying…');const r=await api('verifyCode',{challenge,code:$('stayCode').value.trim()});token=r.token;challenge='';$('stayCode').value='';$('stayLogin').classList.add('stay-hidden');$('stayAccount').classList.remove('stay-hidden');await refresh();say('Signed in. Only verified payments are deducted from your balance.');});};
+ $('stayRefresh').onclick=()=>run(async()=>{await refresh();say('Booking details refreshed.');});
+ $('stayLogout').onclick=()=>run(async()=>{const old=token;token='';$('stayBookings').replaceChildren();$('stayAccount').classList.add('stay-hidden');$('stayLogin').classList.remove('stay-hidden');$('stayCodeForm').classList.add('stay-hidden');say('Signed out.');await api('logout',{token:old});});
+ function render(result){
+  $('stayBookings').replaceChildren();
+  if(!result.bookings.length){$('stayBookings').append(node('p','No bookings are linked to this email. Contact Ignite Living to check your details.','stay-note'));return;}
+  for(const b of result.bookings){
+   const card=node('article',undefined,'stay-card');card.append(node('h3',b.propertyName),node('p',b.bookingId,'stay-reference'));
+   card.append(node('span',label(b.bookingStatus),'stay-status'),node('span',label(b.paymentStatus),'stay-status'));
+   const dl=node('dl');for(const [title,value]of [['Check-in',b.checkin],['Check-out',b.checkout],['Guests',b.occupants||'To be confirmed'],['Total rental',currency(b.totalAmount)],['Booking deposit (part of total)',currency(b.bookingDeposit)],['Verified amount paid',currency(b.amountPaid)],['Outstanding balance',currency(b.balanceDue)]])dl.append(node('dt',title),node('dd',String(value)));card.append(dl);
+   card.append(node('p','The RM500 booking deposit forms part of your rental total. The remaining balance is payable on check-in day.','stay-note'));
+   if(b.proofs.length){card.append(node('h4','Your uploaded payment proofs'));for(const p of b.proofs){const receipt=node('div',undefined,'stay-proof');receipt.append(node('strong',label(p.reviewStatus)),node('div',currency(Number(p.claimedAmount))+' · '+p.paymentDate),node('div',p.proofId,'stay-reference'));card.append(receipt);}}
+   if(['CANCELLED','REJECTED'].includes(b.bookingStatus)){card.append(node('p','This booking is not accepting payment proof.','stay-note'));$('stayBookings').append(card);continue;}
+   card.append(node('h4','Payment methods'));
+   const methods=node('div',undefined,'stay-methods');
+   for(const [title,description,active]of [['Bank transfer','Upload proof',true],['CHIP online payment','Coming soon',false],['Credit / debit card','Coming soon',false],['FPX online banking','Coming soon',false],['E-wallets','Coming soon',false]]){const button=node('button',title,active?'active-method':'');button.type='button';button.disabled=true;button.dataset.alwaysDisabled='true';button.append(node('small',description));methods.append(button);}card.append(methods);
+   const bank=node('div',undefined,'stay-bank');if(result.bank.bankName&&result.bank.accountName&&result.bank.accountNumber){bank.append(node('strong',result.bank.bankName),node('div',result.bank.accountName),node('div',result.bank.accountNumber),node('div','Use your booking reference when making payment.'));}else bank.textContent='Use the bank details provided directly by Ignite Living. Contact us if you have not received them.';card.append(bank);
+   card.append(node('p','Only transfer payment after Ignite Living has agreed your booking and payment instructions. Uploading a receipt does not confirm the booking.','stay-note'));
+   const form=node('form');let uploadId='';
+   const grid=node('div',undefined,'stay-grid');
+   function field(title,type,name,required){const wrapper=node('label',title,'stay-label');const input=node('input',undefined,'stay-input');input.type=type;input.name=name;input.required=!!required;wrapper.append(input);grid.append(wrapper);return input;}
+   const amount=field('Amount transferred (RM)','number','amount',true);amount.min='0.01';amount.max='1000000';amount.step='0.01';
+   const date=field('Payment date','date','paymentDate',true);date.max=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   const reference=field('Bank reference (optional)','text','reference',false);reference.maxLength=120;
+   const file=field('Payment proof — JPG, PNG or PDF','file','receipt',true);file.accept='.jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf';form.append(grid,node('p','Maximum file size: 5 MB. Your proof is visible only to the authorised booking operator.','stay-note'));
+   const button=node('button','Upload payment proof','check-button');button.type='submit';form.append(button);card.append(form);
+   file.onchange=()=>{uploadId='';};
+   form.onsubmit=e=>{e.preventDefault();run(async()=>{
+    const selected=file.files[0];if(!selected||selected.size>5*1024*1024)throw new Error('Choose a JPG, PNG or PDF no larger than 5 MB.');
+    if(!/\.(jpe?g|png|pdf)$/i.test(selected.name))throw new Error('Use JPG, PNG or PDF.');
+    if(!uploadId)uploadId=crypto.randomUUID();
+    say('Uploading your payment proof. Please keep this page open…');
+    const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Unable to read the file.'));reader.readAsDataURL(selected);});
+    const r=await api('upload',{token,bookingId:b.bookingId,uploadId,amount:Number(amount.value),paymentDate:date.value,reference:reference.value.trim(),base64});
+    say(r.message+' Reference: '+r.proofId);await refresh();
+   });};$('stayBookings').append(card);
+  }
+ }
+})();
+</script>
+
 </body>
 </html>
