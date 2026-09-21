@@ -3440,11 +3440,11 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
   <div class="stay-head"><div class="hero-label">IGNITE LIVING · GUEST ACCESS</div><h2 id="stayTitle">Manage my stay</h2><p>Your booking details, payment balance and proof of payment, in one place.</p></div>
   <div class="stay-content">
    <section id="stayLogin">
-    <form id="staySendForm"><label class="stay-label" for="stayIdentifier">Booking email or mobile number</label><input class="stay-input" id="stayIdentifier" autocomplete="username" maxlength="180" required placeholder="Email or +60 mobile number"><p class="stay-note">Use the details registered with your booking. A one-time code will be sent to your registered email, including when you enter your mobile number.</p><button class="continue-button" type="submit">Send sign-in code</button></form>
-    <form id="stayCodeForm" class="stay-hidden"><label class="stay-label" for="stayCode">Six-digit email code</label><input class="stay-input" id="stayCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="000000"><button class="check-button" type="submit">Sign in</button><p class="stay-note">Code expires after 10 minutes. To resend, use “Send sign-in code” above.</p></form>
+    <form id="stayLoginForm"><label class="stay-label" for="stayIdentifier">Phone number or email</label><input class="stay-input" id="stayIdentifier" autocomplete="username" maxlength="180" required placeholder="Phone number or email"><label class="stay-label" for="stayPassword">Password</label><input class="stay-input" id="stayPassword" type="password" autocomplete="current-password" maxlength="128" required><p class="stay-note">Use your registered contact details and password. First time here? Use the temporary password provided by Ignite Living.</p><button class="continue-button" type="submit">Sign in</button></form>
     <p class="stay-note">For now, contact Ignite Living to register or correct your booking details.</p>
    </section>
-   <section id="stayAccount" class="stay-hidden"><div class="stay-toolbar"><button type="button" id="stayRefresh">Refresh bookings</button><button type="button" id="stayLogout">Sign out</button></div><div id="stayBookings"></div></section>
+   <section id="stayChange" class="stay-hidden"><h3>Change your password</h3><p class="stay-note" id="stayChangeNote">Choose a new password before viewing your stay.</p><form id="stayChangeForm"><label id="stayCurrentLabel" class="stay-label" for="stayCurrent">Current password<input id="stayCurrent" class="stay-input" type="password" autocomplete="current-password" maxlength="128"></label><label class="stay-label" for="stayNew">New password (at least 12 characters)</label><input id="stayNew" class="stay-input" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><label class="stay-label" for="stayRepeat">Confirm new password</label><input id="stayRepeat" class="stay-input" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><button class="check-button" type="submit">Save new password</button><button id="stayChangeLogout" type="button">Sign out</button></form></section>
+   <section id="stayAccount" class="stay-hidden"><div class="stay-toolbar"><button type="button" id="stayRefresh">Refresh bookings</button><button type="button" id="stayChangeButton">Change password</button><button type="button" id="stayLogout">Sign out</button></div><div id="stayBookings"></div></section>
    <p id="stayMessage" class="stay-message" role="status" aria-live="polite"></p>
   </div>
  </div>
@@ -3452,37 +3452,42 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
 <script>
 (()=>{
  const $=id=>document.getElementById(id);
- let token='',challenge='',busy=false,previousFocus=null;
+ let token='',mustChange=false,busy=false,previousFocus=null;
  const currency=n=>n===null||n===undefined?'To be confirmed':new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR'}).format(n);
  const say=text=>{$('stayMessage').textContent=text;};
  const label=value=>String(value||'').replaceAll('_',' ').toLowerCase().replace(/^./,c=>c.toUpperCase());
  function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
  async function api(action,data={}){
-  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),60000);
+  const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),180000);
   try{
    const response=await fetch(BOOKING_API,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'stay.'+action,...data}),signal:abort.signal});
    if(!response.ok)throw new Error('Connection failed. Please try again.');
-   const result=await response.json();if(result.ok!==true)throw new Error(result.message||'Unable to complete this action.');return result;
+   const result=await response.json();if(result.ok!==true){const error=new Error(result.message||'Unable to complete this action.');error.code=result.code;throw error;}return result;
   }catch(e){if(e.name==='AbortError')throw new Error('The request timed out. Refresh your bookings before retrying an upload.');if(e instanceof SyntaxError)throw new Error('Please contact Ignite Living: guest access is not available yet.');throw e;}finally{clearTimeout(timer);}
  }
  function controls(disabled){$('stayModal').querySelectorAll('button,input').forEach(n=>{if(n.dataset.alwaysDisabled)return;n.disabled=disabled;});}
- async function run(work){if(busy)return;busy=true;controls(true);try{await work();}catch(e){say(e.message||'Connection unavailable. Please try again.');}finally{busy=false;controls(false);}}
+ async function run(work){if(busy)return;busy=true;controls(true);try{await work();}catch(e){if(e.code==='AUTH_REQUIRED')reset();if(e.code==='CHANGE_REQUIRED')showChange(true);say(e.message||'Connection unavailable. Please try again.');}finally{busy=false;controls(false);}}
  async function refresh(){const result=await api('list',{token});render(result);}
  function close(){if(busy)return;$('stayModal').classList.remove('open');document.body.style.overflow=document.querySelector('.modal.open')?'hidden':'';previousFocus?.focus();}
- window.manageStay=function(event){event?.preventDefault();previousFocus=document.activeElement;$('stayModal').classList.add('open');document.body.style.overflow='hidden';(token?$('stayRefresh'):$('stayIdentifier')).focus();};
+ window.manageStay=function(event){event?.preventDefault();previousFocus=document.activeElement;$('stayModal').classList.add('open');document.body.style.overflow='hidden';(token?($('stayChange').classList.contains('stay-hidden')?$('stayRefresh'):$('stayNew')):$('stayIdentifier')).focus();};
  $('stayClose').onclick=close;$('stayModal').onclick=e=>{if(e.target===$('stayModal'))close();};
  document.addEventListener('keydown',e=>{
   if(!$('stayModal').classList.contains('open'))return;
   if(e.key==='Escape'){e.stopImmediatePropagation();close();}
   if(e.key==='Tab'){const items=[...$('stayModal').querySelectorAll('button,input,a')].filter(n=>!n.disabled&&n.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
  },true);
- $('staySendForm').onsubmit=e=>{e.preventDefault();run(async()=>{say('Requesting your sign-in code…');const r=await api('sendCode',{identifier:$('stayIdentifier').value.trim()});challenge=r.challenge;$('stayCodeForm').classList.remove('stay-hidden');$('stayCode').value='';say(r.message);});};
- $('stayCodeForm').onsubmit=e=>{e.preventDefault();run(async()=>{say('Verifying…');const r=await api('verifyCode',{challenge,code:$('stayCode').value.trim()});token=r.token;challenge='';$('stayCode').value='';$('stayLogin').classList.add('stay-hidden');$('stayAccount').classList.remove('stay-hidden');await refresh();say('Signed in. Only verified payments are deducted from your balance.');});};
+ function reset(){token='';mustChange=false;$('stayBookings').replaceChildren();for(const id of ['stayPassword','stayCurrent','stayNew','stayRepeat'])$(id).value='';$('stayAccount').classList.add('stay-hidden');$('stayChange').classList.add('stay-hidden');$('stayLogin').classList.remove('stay-hidden');}
+ function showChange(required){mustChange=required;$('stayBookings').replaceChildren();$('stayAccount').classList.add('stay-hidden');$('stayLogin').classList.add('stay-hidden');$('stayChange').classList.remove('stay-hidden');$('stayCurrentLabel').classList.toggle('stay-hidden',required);$('stayCurrent').required=!required;$('stayChangeNote').textContent=required?'Choose a new password before viewing your stay.':'Enter your current password and choose a new one.';}
+ async function signedIn(r){token=r.token;mustChange=r.mustChangePassword;$('stayLogin').classList.add('stay-hidden');if(mustChange){showChange(true);say('Please replace your temporary password to continue.');return;}$('stayChange').classList.add('stay-hidden');$('stayAccount').classList.remove('stay-hidden');await refresh();say('Signed in. Only verified payments are deducted from your balance.');}
+ $('stayLoginForm').onsubmit=e=>{e.preventDefault();run(async()=>{say('Signing in…');const password=$('stayPassword').value;$('stayPassword').value='';const r=await api('login',{identifier:$('stayIdentifier').value.trim(),password});await signedIn(r);});};
+ $('stayChangeForm').onsubmit=e=>{e.preventDefault();run(async()=>{if($('stayNew').value!==$('stayRepeat').value)throw new Error('The new passwords do not match.');say('Saving your new password…');const r=await api('changePassword',{token,currentPassword:$('stayCurrent').value,newPassword:$('stayNew').value});for(const id of ['stayCurrent','stayNew','stayRepeat'])$(id).value='';await signedIn(r);say('Password changed. Your stay is ready to manage.');});};
+ $('stayChangeButton').onclick=()=>{showChange(false);say('');};
  $('stayRefresh').onclick=()=>run(async()=>{await refresh();say('Booking details refreshed.');});
- $('stayLogout').onclick=()=>run(async()=>{const old=token;token='';$('stayBookings').replaceChildren();$('stayAccount').classList.add('stay-hidden');$('stayLogin').classList.remove('stay-hidden');$('stayCodeForm').classList.add('stay-hidden');say('Signed out.');await api('logout',{token:old});});
+ const logout=()=>run(async()=>{const old=token;reset();say('Signed out.');await api('logout',{token:old});});
+ $('stayLogout').onclick=logout;$('stayChangeLogout').onclick=logout;
  function render(result){
   $('stayBookings').replaceChildren();
-  if(!result.bookings.length){$('stayBookings').append(node('p','No bookings are linked to this email. Contact Ignite Living to check your details.','stay-note'));return;}
+  if(!result.bookings.length){$('stayBookings').append(node('p','No bookings are linked to your account. Contact Ignite Living to check your details.','stay-note'));return;}
   for(const b of result.bookings){
    const card=node('article',undefined,'stay-card');card.append(node('h3',b.propertyName),node('p',b.bookingId,'stay-reference'));
    card.append(node('span',label(b.bookingStatus),'stay-status'),node('span',label(b.paymentStatus),'stay-status'));
@@ -3517,6 +3522,7 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
  }
 })();
 </script>
+
 
 </body>
 </html>
