@@ -1010,7 +1010,51 @@ footer{
   }
 }
 
-button:disabled{opacity:.55;cursor:not-allowed} #connectionMessage{line-height:1.6;color:#425b63} .summary-row strong{overflow-wrap:anywhere} .pricing-note{font-size:13px;line-height:1.6;color:#52686f} </style>
+button:disabled{opacity:.55;cursor:not-allowed}
+#connectionMessage{line-height:1.6;color:#425b63}
+.summary-row strong{overflow-wrap:anywhere}
+.pricing-note{font-size:13px;line-height:1.6;color:#52686f}
+
+/* Mobile header: logo above two matching buttons */
+@media (max-width: 720px) {
+  header .nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 18px 16px;
+  }
+
+  header .brand {
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  header .nav-right {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  header .nav-right a:not(.manage-link) {
+    display: none;
+  }
+
+  header .nav-right .manage-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px 8px;
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+</style>
 </head>
 
 <body>
