@@ -3522,6 +3522,17 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
  $('stayRefresh').onclick=()=>run(async()=>{await refresh();say('Booking details refreshed.');});
  const logout=()=>run(async()=>{const old=token;reset();say('Signed out.');await api('logout',{token:old});});
  $('stayLogout').onclick=logout;$('stayChangeLogout').onclick=logout;
+  const bookStayButton = node('button', 'Book a stay');
+bookStayButton.type = 'button';
+bookStayButton.onclick = () => {
+  if (busy) return;
+  close();
+  document.getElementById('homes').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+};
+$('stayRefresh').before(bookStayButton);
  function requestTools(card,b,result){
   const history=(result.requests||[]).filter(r=>r.bookingId===b.bookingId);
   if(history.length){card.append(node('h4','Your booking requests'));for(const r of history){const item=node('div',undefined,'stay-proof');item.append(node('strong',label(r.type)+' — '+label(r.status)),node('div',r.requestId,'stay-reference'));if(r.reviewNotes)item.append(node('p',r.reviewNotes));if(r.quote.refund>0)item.append(node('p','Refund amount: '+currency(r.quote.refund)+(r.refundDate?' · Transferred '+r.refundDate:'')));card.append(item);}}
