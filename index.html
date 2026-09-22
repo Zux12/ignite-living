@@ -3571,8 +3571,10 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
    if(b.checkinGuestName)card.append(node('p','Named check-in guest: '+b.checkinGuestName,'stay-note'));
    if(b.bookingStatus==='CANCELLED')card.append(node('p','Cancellation amount retained: '+currency(b.cancellationRetained)+' · Refund outstanding: '+currency(b.refundDue)+' · Refunded: '+currency(b.amountRefunded),'stay-note'));
    requestTools(card,b,result);
-   card.append(node('p','The RM500 booking deposit forms part of your rental total. The remaining balance is payable on check-in day.','stay-note'));
-   if(b.proofs.length){card.append(node('h4','Your uploaded payment proofs'));for(const p of b.proofs){const receipt=node('div',undefined,'stay-proof');receipt.append(node('strong',label(p.reviewStatus)),node('div',currency(Number(p.claimedAmount))+' · '+p.paymentDate),node('div',p.proofId,'stay-reference'));card.append(receipt);}}
+if (!['CANCELLED', 'REJECTED'].includes(b.bookingStatus)) {
+  card.append(node('p','The RM500 booking deposit forms part of your rental total. The remaining balance is payable on check-in day.','stay-note'));
+}
+    if(b.proofs.length){card.append(node('h4','Your uploaded payment proofs'));for(const p of b.proofs){const receipt=node('div',undefined,'stay-proof');receipt.append(node('strong',label(p.reviewStatus)),node('div',currency(Number(p.claimedAmount))+' · '+p.paymentDate),node('div',p.proofId,'stay-reference'));card.append(receipt);}}
    if(['CANCELLED','REJECTED'].includes(b.bookingStatus)){card.append(node('p','This booking is not accepting payment proof.','stay-note'));$('stayBookings').append(card);continue;}
    card.append(node('h4','Payment methods'));
    const methods=node('div',undefined,'stay-methods');
