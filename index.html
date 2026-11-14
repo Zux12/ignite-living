@@ -3257,6 +3257,20 @@ let quoteGeneration = 0;
 let savingRequest = false;
 let uncertainSubmission = false;
 let checkedQuote = null;
+let bookingRequestIdentity = null;
+function bookingRequestId(account, data){
+  const key=JSON.stringify([account.customerId,data.propertyId,data.checkin,data.checkout,data.occupants,data.agreementVersion]);
+  if(!bookingRequestIdentity){try{bookingRequestIdentity=JSON.parse(sessionStorage.getItem('ignite.bookingRequest')||'null');}catch(_){}}
+  if(!bookingRequestIdentity||bookingRequestIdentity.key!==key||!/^[0-9a-f-]{36}$/i.test(bookingRequestIdentity.id||'')){
+    bookingRequestIdentity={key,id:crypto.randomUUID()};
+    try{sessionStorage.setItem('ignite.bookingRequest',JSON.stringify(bookingRequestIdentity));}catch(_){}
+  }
+  return bookingRequestIdentity.id;
+}
+function clearBookingRequestIdentity(){
+  bookingRequestIdentity=null;
+  try{sessionStorage.removeItem('ignite.bookingRequest');}catch(_){}
+}
 const el = id => document.getElementById(id);
 const money = value => new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR'}).format(value);
 function connectionMessage(text){ el('connectionMessage').textContent = text; }
@@ -3346,6 +3360,7 @@ async function continueBooking(){
   if(data.customerPhone&&!/^\+?[\d\s()-]{7,30}$/.test(data.customerPhone)){connectionMessage('Please enter a valid mobile number.');return;}
   if(data.customerEmail&&(!isValidEmail(data.customerEmail)||data.customerEmail.length>180)){connectionMessage('Please enter a valid email address.');return;}
   if(!data.agreementAccepted){connectionMessage('Please read and accept the rental terms.');return;}
+  try{data.requestId=bookingRequestId(account,data);}catch(_){connectionMessage('Unable to prepare your booking request. Please use an up-to-date browser.');return;}
   savingRequest=true;
   const controls=[...el('propertyModal').querySelectorAll('button,input,select')];
   const oldDisabled=controls.map(control=>control.disabled);
@@ -3354,6 +3369,7 @@ async function continueBooking(){
   try{
     const result=await callBookingApi('requestBooking',data,true);
     if(!result.bookingId||result.status!=='PENDING_REVIEW')throw new Error('Unexpected save response.');
+    clearBookingRequestIdentity();
     el('confirmProperty').textContent=checkedQuote.propertyName;
     el('confirmDates').textContent=data.checkin+' → '+data.checkout;
     el('confirmGuests').textContent=data.occupants+' guests';
@@ -3450,6 +3466,7 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
  },true);
  function reset(){
   hideEditor();currentProfile=null;token='';mustChange=false;
+  clearBookingRequestIdentity();
   $('stayBookings').replaceChildren();accountForm.reset();
   for(const id of ['stayIdentifier','stayPassword','stayCurrent','stayNew','stayRepeat','guestName','guestPhone','guestEmail'])$(id).value='';
   for(const id of ['confirmProperty','confirmDates','confirmGuests','confirmName','confirmReference','confirmTotal','confirmDeposit','confirmBalance'])$(id).textContent='';

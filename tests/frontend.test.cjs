@@ -53,6 +53,28 @@ function accountResponse(input) {
   return quote;
 }
 
+test('booking retry identity survives page reload and is bound to customer and selection', async t => {
+  const first=await setup(t), data={propertyId:'IL001',checkin:'2026-12-01',checkout:'2026-12-02',occupants:2,agreementVersion:'2.0'};
+  const id=first.w.bookingRequestId(profile,data);
+  assert.match(id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  assert.equal(first.w.bookingRequestId(profile,data),id);
+  const stored=first.w.sessionStorage.getItem('ignite.bookingRequest');
+  assert.ok(!stored.includes(profile.email));assert.ok(!stored.includes(profile.phone));
+  const reloaded=await setup(t);reloaded.w.sessionStorage.setItem('ignite.bookingRequest',stored);
+  assert.equal(reloaded.w.bookingRequestId(profile,data),id);
+  assert.notEqual(reloaded.w.bookingRequestId(profile,{...data,occupants:3}),id);
+  assert.notEqual(first.w.bookingRequestId({...profile,customerId:'other-synthetic-customer'},data),id);
+});
+
+test('booking retry identity can be cleared and works without browser storage', async t => {
+  const {w}=await setup(t), data={propertyId:'IL001',checkin:'2026-12-01',checkout:'2026-12-02',occupants:2,agreementVersion:'2.0'};
+  const before=w.bookingRequestId(profile,data);w.clearBookingRequestIdentity();
+  assert.equal(w.sessionStorage.getItem('ignite.bookingRequest'),null);
+  assert.notEqual(w.bookingRequestId(profile,data),before);
+  w.clearBookingRequestIdentity();Object.defineProperty(w,'sessionStorage',{get(){throw new Error('Storage disabled');}});
+  const id=w.bookingRequestId(profile,data);assert.equal(w.bookingRequestId(profile,data),id);
+});
+
 test('date minimum follows Malaysia after midnight, independent of browser timezone', async t => {
   const { d } = await setup(t);
   assert.equal(d.getElementById('searchCheckin').min, '2026-11-15');
