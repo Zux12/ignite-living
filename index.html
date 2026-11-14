@@ -1622,6 +1622,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div
   class="modal"
   id="propertyModal"
+  role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"
 >
 
   <div class="modal-box">
@@ -1996,6 +1997,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div
   class="modal"
   id="termsModal"
+  role="dialog" aria-modal="true" aria-label="Furnished Property Rental Terms" tabindex="-1"
 >
 
   <div
@@ -2114,6 +2116,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div
   class="modal"
   id="confirmationModal"
+  role="dialog" aria-modal="true" aria-label="Booking request received" tabindex="-1"
 >
 
   <div
@@ -2409,26 +2412,8 @@ document.addEventListener(
       new Date().getFullYear();
 
 
-    const today =
-      new Date();
-
-    today.setHours(0,0,0,0);
-
-
-    const tomorrow =
-      new Date(today);
-
-    tomorrow.setDate(
-      tomorrow.getDate() + 1
-    );
-
-
-    const todayString =
-      formatInputDate(today);
-
-    const tomorrowString =
-      formatInputDate(tomorrow);
-
+    const todayString = malaysiaToday();
+    const tomorrowString = nextCalendarDate(todayString);
 
     document.getElementById(
       "searchCheckin"
@@ -2480,6 +2465,58 @@ function formatInputDate(date){
    SEARCH PROPERTIES
 ========================================================= */
 
+// Rental dates follow the property timezone, including for overseas guests.
+function malaysiaToday(){
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'
+  }).formatToParts(new Date());
+  const get = type => parts.find(part => part.type === type).value;
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+
+function nextCalendarDate(value){
+  const date = new Date(value + 'T00:00:00Z');
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0,10);
+}
+
+function rentalDateError(checkin, checkout, optional=false){
+  if(optional && !checkin && !checkout)return '';
+  if(!checkin || !checkout)return 'Choose both your move-in and move-out dates.';
+  if(checkin < malaysiaToday())return 'Move-in cannot be in the past. Choose today or a later date (Malaysia time).';
+  if(checkout <= checkin)return 'Move-out date must be after the move-in date.';
+  return '';
+}
+
+const bookingDialogFocus = new Map();
+function openBookingDialog(id){
+  const modal = document.getElementById(id);
+  if(!modal.classList.contains('open'))bookingDialogFocus.set(id,document.activeElement);
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  (modal.querySelector('.modal-close') || modal).focus();
+}
+function closeBookingDialog(id){
+  const modal = document.getElementById(id);
+  if(!modal.classList.contains('open'))return;
+  modal.classList.remove('open');
+  document.body.style.overflow = document.querySelector('.modal.open') ? 'hidden' : '';
+  const previous = bookingDialogFocus.get(id);
+  bookingDialogFocus.delete(id);
+  if(previous?.isConnected)previous.focus();
+}
+document.addEventListener('keydown', event => {
+  if(event.key !== 'Tab' || document.getElementById('stayModal')?.classList.contains('open'))return;
+  const modal = ['termsModal','confirmationModal','propertyModal'].map(id=>document.getElementById(id)).find(node=>node.classList.contains('open'));
+  if(!modal)return;
+  const items = [...modal.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')].filter(node=>!node.disabled && node.tabIndex>=0 && node.getClientRects().length);
+  const first=items[0],last=items.at(-1);
+  if(!first){event.preventDefault();modal.focus();return;}
+  if(!modal.contains(document.activeElement) || (event.shiftKey && document.activeElement===first) || (!event.shiftKey && document.activeElement===last)){
+    event.preventDefault();(event.shiftKey?last:first).focus();
+  }
+});
+
 function searchProperties(){
 
   const location =
@@ -2503,20 +2540,8 @@ function searchProperties(){
     ).value;
 
 
-  if(
-    checkin &&
-    checkout &&
-    new Date(checkout) <= new Date(checkin)
-  ){
-
-    showToast(
-      "Move-out date must be after the move-in date."
-    );
-
-    return;
-
-  }
-
+  const dateError = rentalDateError(checkin, checkout, true);
+  if(dateError){showToast(dateError);return;}
 
   const cards =
     document.querySelectorAll(
@@ -2742,15 +2767,8 @@ function openPropertyBase(propertyId){
   }
 
 
-  document.getElementById(
-    "propertyModal"
-  ).classList.add(
-    "open"
-  );
-
-
-  document.body.style.overflow =
-    "hidden";
+  updateCheckoutMinimum('modalCheckin','modalCheckout');
+  openBookingDialog('propertyModal');
 
 }
 
@@ -2761,16 +2779,7 @@ function openPropertyBase(propertyId){
 ========================================================= */
 
 function closePropertyBase(){
-
-  document.getElementById(
-    "propertyModal"
-  ).classList.remove(
-    "open"
-  );
-
-  document.body.style.overflow =
-    "";
-
+  closeBookingDialog('propertyModal');
 }
 
 
@@ -2924,30 +2933,14 @@ function isValidEmail(email){
 ========================================================= */
 
 function showTerms(event){
-
-  if(event){
-    event.preventDefault();
-  }
-
-
-  document.getElementById(
-    "termsModal"
-  ).classList.add(
-    "open"
-  );
-
+  event?.preventDefault();
+  openBookingDialog('termsModal');
 }
 
 
 
 function closeTerms(){
-
-  document.getElementById(
-    "termsModal"
-  ).classList.remove(
-    "open"
-  );
-
+  closeBookingDialog('termsModal');
 }
 
 
@@ -2957,30 +2950,8 @@ function closeTerms(){
 ========================================================= */
 
 function closeConfirmation(){
-
-  document.getElementById(
-    "confirmationModal"
-  ).classList.remove(
-    "open"
-  );
-
-
-  document.body.style.overflow =
-    "";
-
-
-  /*
-    For the prototype we clear the active
-    rental after the confirmation screen
-    is closed.
-
-    Once Google Sheets is connected,
-    this behaviour can be changed.
-  */
-
-  window.currentRental =
-    null;
-
+  closeBookingDialog('confirmationModal');
+  window.currentRental = null;
 }
 
 
@@ -3096,63 +3067,13 @@ document.getElementById(
 
 
 
-function updateCheckoutMinimum(
-  checkinId,
-  checkoutId
-){
-
-  const checkin =
-    document.getElementById(
-      checkinId
-    ).value;
-
-
-  if(!checkin){
-    return;
-  }
-
-
-  const start =
-    new Date(
-      checkin + "T00:00:00"
-    );
-
-
-  const nextDay =
-    new Date(
-      start
-    );
-
-
-  nextDay.setDate(
-    nextDay.getDate() + 1
-  );
-
-
-  const checkout =
-    document.getElementById(
-      checkoutId
-    );
-
-
-  checkout.min =
-    formatInputDate(
-      nextDay
-    );
-
-
-  if(
-    checkout.value &&
-    new Date(
-      checkout.value + "T00:00:00"
-    ) <= start
-  ){
-
-    checkout.value =
-      "";
-
-  }
-
+function updateCheckoutMinimum(checkinId, checkoutId){
+  const input = document.getElementById(checkinId);
+  const checkout = document.getElementById(checkoutId);
+  const today = malaysiaToday();
+  input.min = today;
+  checkout.min = nextCalendarDate(input.value && input.value > today ? input.value : today);
+  if(checkout.value && checkout.value < checkout.min)checkout.value = '';
 }
 
 
@@ -3386,7 +3307,9 @@ async function checkRentalPeriod(){
   clearQuote();
   const input=formSelection();
   if(!currentProperty?.available)return;
-  if(!input.checkin||!input.checkout||input.checkout<=input.checkin){connectionMessage('Choose a move-out date after your move-in date.');return;}
+  const dateError=rentalDateError(input.checkin,input.checkout);
+  if(dateError){connectionMessage(dateError);return;}
+  if(!Number.isInteger(input.occupants)||input.occupants<1||input.occupants>30){connectionMessage('Please select between 1 and 30 guests.');return;}
   const generation=quoteGeneration;
   const button=document.querySelector('.check-button');
   button.disabled=true;
@@ -3440,8 +3363,8 @@ async function continueBooking(){
     el('confirmDeposit').textContent=money(result.bookingDeposit);
     el('confirmBalance').textContent=money(result.balanceAfterDeposit);
     clearQuote();
-    el('propertyModal').classList.remove('open');
-    el('confirmationModal').classList.add('open');
+    closeBookingDialog('propertyModal');
+    openBookingDialog('confirmationModal');
   }catch(error){
     if(!error.rejected)uncertainSubmission=true;
     connectionMessage(error.rejected?error.message:'We could not confirm whether your request was saved. Please contact Ignite Living before trying again, to avoid duplicate requests.');
@@ -3525,7 +3448,15 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
   if(e.key==='Escape'){e.stopImmediatePropagation();close();}
   if(e.key==='Tab'){const items=[...$('stayModal').querySelectorAll('button,input,select,textarea,a')].filter(n=>!n.disabled&&n.getClientRects().length);const first=items[0],last=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}
  },true);
- function reset(){hideEditor();currentProfile=null;token='';mustChange=false;$('stayBookings').replaceChildren();for(const id of ['stayPassword','stayCurrent','stayNew','stayRepeat'])$(id).value='';$('stayAccount').classList.add('stay-hidden');$('stayChange').classList.add('stay-hidden');$('stayLogin').classList.remove('stay-hidden');}
+ function reset(){
+  hideEditor();currentProfile=null;token='';mustChange=false;
+  $('stayBookings').replaceChildren();accountForm.reset();
+  for(const id of ['stayIdentifier','stayPassword','stayCurrent','stayNew','stayRepeat','guestName','guestPhone','guestEmail'])$(id).value='';
+  for(const id of ['confirmProperty','confirmDates','confirmGuests','confirmName','confirmReference','confirmTotal','confirmDeposit','confirmBalance'])$(id).textContent='';
+  window.pendingBooking=null;clearQuote();
+  $('stayAccount').classList.add('stay-hidden');$('stayChange').classList.add('stay-hidden');$('stayLogin').classList.remove('stay-hidden');
+ }
+
  function showChange(required){mustChange=required;$('stayBookings').replaceChildren();$('stayAccount').classList.add('stay-hidden');$('stayLogin').classList.add('stay-hidden');$('stayChange').classList.remove('stay-hidden');$('stayCurrentLabel').classList.toggle('stay-hidden',required);$('stayCurrent').required=!required;$('stayChangeNote').textContent=required?'Choose a new password before viewing your stay.':'Enter your current password and choose a new one.';}
  async function signedIn(r){hideEditor();token=r.token;mustChange=r.mustChangePassword;$('stayLogin').classList.add('stay-hidden');if(mustChange){showChange(true);say('Please replace your temporary password to continue.');return;}$('stayChange').classList.add('stay-hidden');$('stayAccount').classList.remove('stay-hidden');await refresh();say('Signed in. Only verified payments are deducted from your balance.');}
  const editor=node('section');editor.id='stayProfileEditor';editor.className='stay-hidden';
