@@ -525,6 +525,10 @@ footer{
   margin-top:8px;
 }
 
+.support-links{display:flex;flex-wrap:wrap;gap:4px 16px;line-height:1.7}
+.support-links a{color:inherit;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.support-links a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:2px}
+
 
 /* =========================================================
    PROPERTY MODAL
@@ -1603,6 +1607,16 @@ button:disabled{opacity:.55;cursor:not-allowed}
     </div>
 
 
+    <div>
+      <div class="footer-title">Guest support</div>
+      <div class="footer-text">Bookings and account recovery</div>
+      <div class="footer-text support-links">
+        <a href="tel:+60193455154">Call 019-345 5154</a>
+        <a href="https://wa.me/60193455154" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="mailto:info@igniteinnov.com">info@igniteinnov.com</a>
+      </div>
+    </div>
+
     <div class="footer-text">
       © <span id="year"></span>
       IgniteInno Ventures Sdn Bhd.
@@ -1977,6 +1991,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
           >
             Send booking request
           </button>
+          <div class="stay-note" id="bookingSupport">
+            <p>Need help with your booking request? Contact guest support.</p>
+            <div class="support-links"><a href="tel:+60193455154">Call 019-345 5154</a>
+        <a href="https://wa.me/60193455154" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="mailto:info@igniteinnov.com">info@igniteinnov.com</a></div>
+          </div>
 
         </div>
 
@@ -3432,6 +3452,12 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
    <section id="stayChange" class="stay-hidden"><h3>Change your password</h3><p class="stay-note" id="stayChangeNote">Choose a new password before viewing your stay.</p><form id="stayChangeForm"><label id="stayCurrentLabel" class="stay-label" for="stayCurrent">Current password<input id="stayCurrent" class="stay-input" type="password" autocomplete="current-password" maxlength="128"></label><label class="stay-label" for="stayNew">New password (at least 12 characters)</label><input id="stayNew" class="stay-input" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><label class="stay-label" for="stayRepeat">Confirm new password</label><input id="stayRepeat" class="stay-input" type="password" autocomplete="new-password" minlength="12" maxlength="128" required><button class="check-button" type="submit">Save new password</button><button id="stayChangeLogout" type="button">Sign out</button></form></section>
    <section id="stayAccount" class="stay-hidden"><div class="stay-toolbar"><button type="button" id="stayRefresh">Refresh bookings</button><button type="button" id="stayChangeButton">Change password</button><button type="button" id="stayLogout">Sign out</button></div><div id="stayBookings"></div></section>
    <p id="stayMessage" class="stay-message" role="status" aria-live="polite"></p>
+   <div class="stay-note" id="staySupport">
+    <p>Forgot your password or need help with a booking? Contact guest support.</p>
+    <div class="support-links"><a href="tel:+60193455154">Call 019-345 5154</a>
+        <a href="https://wa.me/60193455154" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="mailto:info@igniteinnov.com">info@igniteinnov.com</a></div>
+   </div>
   </div>
  </div>
 </div>
