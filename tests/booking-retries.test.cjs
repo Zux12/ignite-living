@@ -54,10 +54,11 @@ check('missing identity, missing or duplicate columns and corrupt replay fail cl
 check('contended lock refuses a request without writing',()=>{const h=harness();h.state.locked=true;assert.equal(h.send({requestId:crypto.randomUUID()}).ok,false);assert.equal(h.state.rows.length,0);});
 check('owner confirmation rechecks overlap inside lock and appends its audit atomically',()=>{
  const {c,state}=harness();const records=[{bookingId:'SYNTHETIC-A',propertyId:'IL001',checkin:'2027-01-01',checkout:'2027-01-03',occupants:2,bookingStatus:'PENDING_REVIEW',amountPaid:0,notes:'',row:2},{bookingId:'SYNTHETIC-B',propertyId:'IL001',checkin:'2027-01-02',checkout:'2027-01-04',occupants:2,bookingStatus:'PENDING_REVIEW',amountPaid:0,notes:'',row:3}];
+ state.rows=records.map(b=>fields.map(h=>b[h]===undefined?'':b[h]));
  const props=new Map(),updates=[];c.odOwner_=()=>({ss:{},email:'owner@example.invalid'});c.PropertiesService={getUserProperties:()=>({getProperty:k=>props.get(k),deleteProperty:k=>props.delete(k)})};
  c.srTables_=()=>({bookings:{headers:fields,rows:records},requests:{rows:[]},log:{}});c.prTables_=()=>({proofs:{rows:[]}});
- c.checkAvailability_=(input,exclude)=>{assert.equal(state.locked,true);return {available:!records.some(b=>b.bookingId!==exclude&&b.bookingStatus==='CONFIRMED'&&input.checkin<b.checkout&&input.checkout>b.checkin)}};
- c.prUpdate_=(_,row,key,value)=>({row,key,value});c.srAppend_=(_,record)=>({audit:record});c.Sheets={Spreadsheets:{batchUpdate:({requests})=>{assert.equal(state.locked,true);updates.push(requests);for(const u of requests)if(u.row)records.find(r=>r.row===u.row)[u.key]=u.value;}}};
+ const checkAvailability=c.checkAvailability_;c.checkAvailability_=(input,exclude)=>{assert.equal(state.locked,true);return checkAvailability(input,exclude);};
+ c.prUpdate_=(_,row,key,value)=>({row,key,value});c.srAppend_=(_,record)=>({audit:record});c.Sheets={Spreadsheets:{batchUpdate:({requests})=>{assert.equal(state.locked,true);updates.push(requests);for(const u of requests)if(u.row){records.find(r=>r.row===u.row)[u.key]=u.value;state.rows[u.row-2][fields.indexOf(u.key)]=u.value;}}}};
  function review(b){const token=crypto.randomUUID();props.set('OD_BOOK_'+token,JSON.stringify({bookingId:b.bookingId,snapshot:c.srSnapshot_(b),expires:Date.now()+60000}));return {token,action:'CONFIRM',confirmed:true};}
  const first=review(records[0]),second=review(records[1]);c.odSaveBooking(first);assert.throws(()=>c.odSaveBooking(second),/no longer available/);assert.equal(updates.length,1);assert.equal(updates[0].filter(x=>x.audit).length,1);assert.equal(records[1].bookingStatus,'PENDING_REVIEW');assert.equal(state.locked,false);
 });
