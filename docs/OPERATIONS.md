@@ -54,6 +54,23 @@ If a guest does not receive a booking acknowledgement, inspect their booking lis
 
 For receipt uncertainty, refresh the booking and proof list first. Use upload ID/hash, booking reference and review status to reconcile. The backend may retain a private uploaded file when the sheet write is uncertain; do not delete it or credit payment solely because the upload returned an error. Check the proof record and private file together. Escalate conflicting duplicate records to the owner and preserve the audit trail.
 
+If the page shows a confirmed proof reference but cannot refresh booking details, retain the reference and refresh the booking list; the upload was acknowledged and should not be submitted again. If no acknowledgement arrived, refresh first and retain the exact same receipt for any retry. Renaming a file does not change its contents hash, but taking a fresh screenshot does. A missing sheet row after a Drive write needs owner reconciliation: an orphan file is not a verified payment.
+
+## Remaining browser/device acceptance
+
+Use the existing owner-private staging database and receipt folder for all write tests. First resolve its web-deployment access and verify the staging markers. Never test a reservation, payment, refund or account creation against production. Synthetic fixtures must use fictitious contacts, dummy bank details and a clearly labelled test receipt.
+
+| Check | Required result | Status |
+|---|---|---|
+| Public browse, dates, quotation and form validation | Correct date transfer/price; no overflow at narrow widths; incomplete registration blocked | Desktop Chrome and zoom/reflow checked |
+| iPhone Safari and Android Chrome | Native date selectors; keyboard does not hide required controls; portrait/landscape scroll and close; no horizontal overflow | Needs real devices |
+| Private staging guest journey | Register/sign in, book synthetic dates, view exact reference, select JPG/PNG/PDF, refresh and sign out | Hosted server steps passed; complete browser journey pending private web-app access |
+| Upload interrupted before response | Clear recovery message, controls unlocked, refresh first, same-file retry gives one proof reference | Offline fault checks passed; real browser/network interruption pending |
+| Upload acknowledged, refresh interrupted | Proof reference retained; guest told to refresh without uploading again | Offline fault check passed |
+| Owner browser review | Staging-only proof review, correct booking balance, confirmation/conflict behaviour, guest refresh and audit | Hosted server steps passed; complete browser journey pending |
+
+The public page can safely be checked on a phone through selecting dates, getting a quote, opening/closing registration and viewing rental terms. Do not create a production account or upload a fake receipt for this acceptance test. Finish the write scenarios only after the isolated staging browser path is available.
+
 ## Remaining acceptance decisions
 
 - Owner-approved call/WhatsApp (019-345 5154) and email (info@igniteinnov.com) routes are available for booking and account-recovery assistance. Forgotten-password requests are handled manually; no automated reset flow was added.

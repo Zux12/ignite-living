@@ -9,7 +9,7 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const profile = { customerId: 'synthetic-customer', customerName: 'Synthetic Guest', phone: '+60123456789', email: 'guest@example.invalid' };
 const quote = { ok: true, available: true, propertyName: 'Mayang Sari Beach Cottage', nights: 1, totalAmount: 1200, bookingDeposit: 500, balanceAfterDeposit: 700 };
 
-async function setup(t, responder, now = '2026-11-14T16:30:00Z') {
+async function setup(t, responder, now = '2026-11-14T16:30:00Z', configure = () => {}) {
   const requests = [];
   const dom = new JSDOM(html, {
     url: 'https://ignite-living.test/', runScripts: 'dangerously', pretendToBeVisual: true,
@@ -24,9 +24,10 @@ async function setup(t, responder, now = '2026-11-14T16:30:00Z') {
       w.fetch = async (url, options = {}) => {
         const input = options.body ? JSON.parse(options.body) : Object.fromEntries(new URL(url).searchParams);
         requests.push(input);
-        const value = responder ? await responder(input) : input.action === 'status' ? { ok: true, bookingEnabled: true } : quote;
+        const value = responder ? await responder(input, options, w) : input.action === 'status' ? { ok: true, bookingEnabled: true } : quote;
         return { ok: true, json: async () => value };
       };
+      configure(w);
     }
   });
   t.after(() => dom.window.close());
@@ -52,6 +53,163 @@ function accountResponse(input) {
   if (input.action === 'status') return { ok: true, bookingEnabled: true };
   return quote;
 }
+
+const syntheticBooking = {
+  bookingId: 'SYNTHETIC-BOOKING', propertyName: 'Synthetic Test Home',
+  bookingStatus: 'CONFIRMED', paymentStatus: 'UNPAID', checkin: '2027-01-01', checkout: '2027-01-03',
+  occupants: 2, rentalAmount: 1800, cleaningFee: 0, changeFees: 0, totalAmount: 1800,
+  bookingDeposit: 500, amountPaid: 0, balanceDue: 1800, proofs: []
+};
+async function uploadSetup(t, responder, configure) {
+  const h = await setup(t, (input, options, w) => {
+    const overridden = responder?.(input, options, w);
+    if (overridden !== undefined) return overridden;
+    if (input.action === 'stay.list') return { ok: true, profile, bookings: [syntheticBooking], requests: [], bank: {} };
+    return accountResponse(input);
+  }, undefined, w => {
+    // FileReader is controlled locally; this harness never uploads files or calls Google.
+    w.FileReader = class {
+      readAsDataURL() { this.result = 'data:application/pdf;base64,JVBERi0xLjQK'; queueMicrotask(() => this.onload?.()); }
+    };
+    configure?.(w);
+  });
+  await signIn(h.w, h.d);
+  h.form = h.d.querySelector('#stayBookings form');
+  h.form.elements.amount.value = '500';
+  h.form.elements.paymentDate.value = '2026-11-14';
+  h.file = h.form.elements.receipt;
+  Object.defineProperty(h.file, 'files', { configurable: true, value: [{ name: 'synthetic.pdf', size: 9 }] });
+  // Synthetic file lists cannot satisfy native file-input validation in jsdom.
+  h.submit = () => h.form.dispatchEvent(new h.w.Event('submit', { bubbles: true, cancelable: true }));
+  return h;
+}
+
+test('rapid duplicate receipt clicks send one upload and keep unavailable payment methods disabled', async t => {
+  let release;
+  const h = await uploadSetup(t, input => input.action === 'stay.upload' ? new Promise(resolve => { release = resolve; }) : undefined);
+  h.submit(); h.submit(); await tick();
+  assert.equal(h.requests.filter(r => r.action === 'stay.upload').length, 1);
+  assert.equal(h.d.getElementById('stayClose').disabled, true);
+  release({ ok: true, proofId: 'SYNTHETIC-PROOF', message: 'Payment proof received.' }); await tick();
+  assert.equal(h.d.getElementById('stayClose').disabled, false);
+  assert.ok([...h.d.querySelectorAll('.stay-methods button')].every(b => b.disabled));
+});
+
+test('lost upload response preserves retry identity and tells the guest to refresh bookings', async t => {
+  let first = true;
+  const h = await uploadSetup(t, input => {
+    if (input.action !== 'stay.upload') return;
+    if (first) { first = false; throw new TypeError('Failed to fetch'); }
+    return { ok: true, proofId: 'SYNTHETIC-PROOF', message: 'This payment proof is already on file.' };
+  });
+  h.submit(); await tick();
+  assert.match(h.d.getElementById('stayMessage').textContent, /could not confirm.*saved.*refresh bookings/i);
+  assert.equal(h.d.getElementById('stayRefresh').disabled, false);
+  h.submit(); await tick();
+  const uploads = h.requests.filter(r => r.action === 'stay.upload');
+  assert.equal(uploads.length, 2); assert.equal(uploads[0].uploadId, uploads[1].uploadId);
+  assert.match(h.d.getElementById('stayMessage').textContent, /already on file.*SYNTHETIC-PROOF/);
+});
+
+test('upload timeout releases controls and gives recovery guidance without an automatic retry', async t => {
+  const h = await uploadSetup(t, (input, options, w) => input.action === 'stay.upload' ? new Promise((resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(new w.DOMException('Synthetic timeout', 'AbortError')), { once: true });
+  }) : undefined, w => {
+    const timeout = w.setTimeout.bind(w);
+    w.setTimeout = (fn, ms, ...args) => timeout(fn, ms === 180000 ? 5 : ms, ...args);
+  });
+  h.submit(); await new Promise(resolve => setTimeout(resolve, 30));
+  assert.equal(h.requests.filter(r => r.action === 'stay.upload').length, 1);
+  assert.equal(h.d.getElementById('stayClose').disabled, false);
+  assert.match(h.d.getElementById('stayMessage').textContent, /refresh (your )?bookings/i);
+});
+
+test('aborted file reading releases the form without sending any receipt', async t => {
+  const h = await uploadSetup(t, undefined, w => {
+    w.FileReader = class { readAsDataURL() { queueMicrotask(() => this.onabort?.()); } };
+  });
+  h.submit(); await tick();
+  assert.equal(h.requests.filter(r => r.action === 'stay.upload').length, 0);
+  assert.equal(h.d.getElementById('stayClose').disabled, false);
+  assert.match(h.d.getElementById('stayMessage').textContent, /cancelled.*choose.*again/i);
+});
+
+test('unreadable, oversized and unsupported receipts do not reach the API', async t => {
+  for (const scenario of ['read error', 'size', 'type']) {
+    const h = await uploadSetup(t, undefined, w => {
+      if (scenario === 'read error') w.FileReader = class { readAsDataURL() { queueMicrotask(() => this.onerror?.()); } };
+    });
+    if (scenario !== 'read error') Object.defineProperty(h.file, 'files', { value: [{ name: scenario === 'type' ? 'synthetic.heic' : 'synthetic.pdf', size: scenario === 'size' ? 5 * 1024 * 1024 + 1 : 9 }] });
+    h.submit(); await tick();
+    assert.equal(h.requests.filter(r => r.action === 'stay.upload').length, 0, scenario);
+    assert.equal(h.d.getElementById('stayClose').disabled, false, scenario);
+    assert.match(h.d.getElementById('stayMessage').textContent, /Unable to read|5 MB|JPG, PNG or PDF/);
+  }
+});
+
+test('confirmed proof reference survives a failed follow-up booking refresh', async t => {
+  let uploaded = false;
+  const h = await uploadSetup(t, input => {
+    if (input.action === 'stay.upload') { uploaded = true; return { ok: true, proofId: 'SYNTHETIC-PROOF', message: 'Payment proof received.' }; }
+    if (input.action === 'stay.list' && uploaded) throw new TypeError('Failed to fetch');
+  });
+  h.submit(); await tick();
+  assert.match(h.d.getElementById('stayMessage').textContent, /Payment proof received.*SYNTHETIC-PROOF.*could not refresh/i);
+  assert.equal(h.d.getElementById('stayRefresh').disabled, false);
+});
+
+test('expired session during upload clears guest data and the selected file', async t => {
+  const h = await uploadSetup(t, input => input.action === 'stay.upload' ? { ok: false, code: 'AUTH_REQUIRED', message: 'Please sign in again.' } : undefined);
+  h.submit(); await tick();
+  assert.equal(h.w.stayBookingToken(), '');
+  assert.equal(h.d.getElementById('guestEmail').value, '');
+  assert.equal(h.d.querySelector('#stayBookings input[type=file]'), null);
+  assert.equal(h.d.getElementById('stayMessage').textContent, 'Please sign in again.');
+});
+
+test('server refusal is shown without claiming an upload succeeded', async t => {
+  const h = await uploadSetup(t, input => input.action === 'stay.upload' ? { ok: false, message: 'This booking is not accepting payment proof.' } : undefined);
+  h.submit(); await tick();
+  assert.match(h.d.getElementById('stayMessage').textContent, /^This booking is not accepting payment proof\./);
+  assert.equal(h.d.getElementById('stayClose').disabled, false);
+});
+
+test('HTTP failures, malformed JSON and missing acknowledgements remain uncertain uploads', async t => {
+  for (const failure of ['http', 'json', 'missing']) {
+    const h = await uploadSetup(t, undefined, w => {
+      const fetch = w.fetch;
+      w.fetch = (url, options = {}) => {
+        if (options.body && JSON.parse(options.body).action === 'stay.upload') {
+          if (failure === 'http') return Promise.resolve({ ok: false });
+          return Promise.resolve({ ok: true, json: async () => { if (failure === 'json') throw new w.SyntaxError('Synthetic malformed response'); return { ok: true }; } });
+        }
+        return fetch(url, options);
+      };
+    });
+    h.submit(); await tick();
+    assert.match(h.d.getElementById('stayMessage').textContent, /could not confirm.*saved.*Refresh bookings/, failure);
+    assert.equal(h.d.getElementById('stayClose').disabled, false, failure);
+  }
+});
+
+test('session expiry after a confirmed upload clears private details but retains its acknowledgement', async t => {
+  let uploaded = false;
+  const h = await uploadSetup(t, input => {
+    if (input.action === 'stay.upload') { uploaded = true; return { ok: true, proofId: 'SYNTHETIC-PROOF', message: 'Payment proof received.' }; }
+    if (input.action === 'stay.list' && uploaded) return { ok: false, code: 'AUTH_REQUIRED', message: 'Please sign in again.' };
+  });
+  h.submit(); await tick();
+  assert.equal(h.w.stayBookingToken(), '');
+  assert.equal(h.d.querySelector('#stayBookings input[type=file]'), null);
+  assert.match(h.d.getElementById('stayMessage').textContent, /SYNTHETIC-PROOF.*Sign in again/);
+});
+
+test('generic backend storage failure also requires checking for an existing proof', async t => {
+  const h = await uploadSetup(t, input => input.action === 'stay.upload' ? { ok: false, code: '', message: 'Unable to complete this action. Please contact Ignite Living.' } : undefined);
+  h.submit(); await tick();
+  assert.match(h.d.getElementById('stayMessage').textContent, /contact Ignite Living.*Refresh bookings.*existing proof/);
+  assert.equal(h.d.getElementById('stayClose').disabled, false);
+});
 
 test('booking retry identity survives page reload and is bound to customer and selection', async t => {
   const first=await setup(t), data={propertyId:'IL001',checkin:'2026-12-01',checkout:'2026-12-02',occupants:2,agreementVersion:'2.0'};
@@ -126,8 +284,9 @@ test('property and terms dialogs move focus, expose semantics and restore focus 
   assert.equal(property.getAttribute('role'), 'dialog');
   assert.equal(property.getAttribute('aria-modal'), 'true');
   assert.ok(property.contains(d.activeElement));
-  const termsLink = d.querySelector('[onclick="showTerms(event)"]'); termsLink.focus(); w.showTerms();
+  const termsLink = d.querySelector('[onclick="showTerms(event)"]'); termsLink.focus(); termsLink.click();
   assert.ok(d.getElementById('termsModal').contains(d.activeElement));
+  assert.equal(d.getElementById('acceptTerms').checked, false);
   d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   assert.equal(d.getElementById('termsModal').classList.contains('open'), false);
   assert.equal(property.classList.contains('open'), true);
