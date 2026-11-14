@@ -799,6 +799,7 @@ footer{
 }
 
 .terms-link{
+  display:inline-block;
   color:var(--teal);
   font-weight:700;
   text-decoration:none;
@@ -3476,8 +3477,18 @@ addSummaryRow(confirmBox,'Balance after deposit payment','confirmBalance');
   try{
    const response=await fetch(BOOKING_API,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'stay.'+action,...data}),signal:abort.signal});
    if(!response.ok)throw new Error('Connection failed. Please try again.');
-   const result=await response.json();if(result.ok!==true){const error=new Error(result.message||'Unable to complete this action.');error.code=result.code;throw error;}return result;
-  }catch(e){if(e.name==='AbortError')throw new Error('The request timed out. Refresh your bookings before retrying an upload.');if(e instanceof SyntaxError)throw new Error('Please contact Ignite Living: guest access is not available yet.');throw e;}finally{clearTimeout(timer);}
+   const result=await response.json();
+   if(!result||typeof result.ok!=='boolean')throw new Error('Unexpected response.');
+   if(result.ok!==true){const error=new Error(result.message||'Unable to complete this action.');error.code=result.code;error.rejected=true;throw error;}
+   if(action==='upload'&&(!result.proofId||!result.message))throw new Error('Missing payment proof acknowledgement.');
+   return result;
+  }catch(e){
+   if(action==='upload'&&!e.rejected)throw new Error('We could not confirm whether your payment proof was saved. Refresh bookings before retrying. Keep the same receipt to avoid duplicates.');
+   if(action==='upload'&&!['AUTH_REQUIRED','CHANGE_REQUIRED'].includes(e.code))throw new Error(e.message+' Refresh bookings to check for an existing proof before retrying.');
+   if(e.name==='AbortError')throw new Error('The request timed out. Refresh your bookings before retrying an upload.');
+   if(e instanceof SyntaxError)throw new Error('Please contact Ignite Living: guest access is not available yet.');
+   throw e;
+  }finally{clearTimeout(timer);}
  }
  function controls(disabled){$('stayModal').querySelectorAll('button,input,select,textarea').forEach(n=>{if(n.dataset.alwaysDisabled)return;n.disabled=disabled;});}
  async function run(work){if(busy)return;busy=true;controls(true);try{await work();}catch(e){if(e.code==='AUTH_REQUIRED')reset();if(e.code==='CHANGE_REQUIRED')showChange(true);say(e.message||'Connection unavailable. Please try again.');}finally{busy=false;controls(false);}}
@@ -3624,9 +3635,15 @@ if (!['CANCELLED', 'REJECTED'].includes(b.bookingStatus)) {
     if(!/\.(jpe?g|png|pdf)$/i.test(selected.name))throw new Error('Use JPG, PNG or PDF.');
     if(!uploadId)uploadId=crypto.randomUUID();
     say('Uploading your payment proof. Please keep this page open…');
-    const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Unable to read the file.'));reader.readAsDataURL(selected);});
+    const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Unable to read the file.'));reader.onabort=()=>reject(new Error('File reading was cancelled. Choose your receipt and try again.'));reader.readAsDataURL(selected);});
     const r=await api('upload',{token,bookingId:b.bookingId,uploadId,amount:Number(amount.value),paymentDate:date.value,reference:reference.value.trim(),base64});
-    say(r.message+' Reference: '+r.proofId);await refresh();
+    const acknowledgement=r.message+' Reference: '+r.proofId;
+    say(acknowledgement);
+    try{await refresh();}catch(error){
+     if(error.code==='AUTH_REQUIRED')reset();
+     if(error.code==='CHANGE_REQUIRED')showChange(true);
+     say(acknowledgement+' We could not refresh your booking details. '+(error.code==='AUTH_REQUIRED'?'Sign in again to view your proof.':error.code==='CHANGE_REQUIRED'?'Update your password to view your proof.':'Use Refresh bookings to check it; you do not need to upload it again.'));
+    }
    });};$('stayBookings').append(card);
   }
  }
