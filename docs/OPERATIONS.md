@@ -2,6 +2,10 @@
 
 This runbook preserves GitHub Pages, the existing Apps Script project, Sheets and private Drive receipts. It does not authorize financial transfers, new retention rules or public sharing. Never include customer records, credentials, bank instructions or private configuration identifiers in this repository.
 
+## Release record
+
+The 14 November 2026 release completed: owner-private spreadsheet backup; three additive headings verified; existing public backend moved from version 5 to version 8 at 21:48 MYT; PR #3 merged as `42572706b02f2ed925e7c1199c949b4e613c2d1f`; Pages run `43601701591` succeeded. Live status, quotation, unauthenticated denial and served-file checks passed. The owner dashboard remains version 7. The procedure below is retained for repeatability and rollback.
+
 ## Booking-retry release
 
 The change adds a customer-bound request UUID, payload hash and saved acknowledgement to the booking row. Repeating the same submission returns the original booking reference. A retry with changed dates or occupants is rejected. It does not confirm bookings or change rates, cancellation rules or payments.
