@@ -56,7 +56,7 @@ For receipt uncertainty, refresh the booking and proof list first. Use upload ID
 
 ## Remaining acceptance decisions
 
-- A verified public support and forgotten-password route is needed; the current UI tells customers to contact Ignite Living without supplying a dedicated recovery workflow.
+- Owner-approved call/WhatsApp (019-345 5154) and email (info@igniteinnov.com) routes are available for booking and account-recovery assistance. Forgotten-password requests are handled manually; no automated reset flow was added.
 - A privacy notice needs approved operator/contact details, purposes, recipients, retention and request handling. These are owner decisions; no legal-compliance claim is made.
 - The existing rental terms identify themselves as preliminary. Obtain approval before changing contractual language.
 - Real iOS Safari and Android Chrome checks are still required for date entry, keyboard, scrolling and receipt selection. Desktop and synthetic server tests do not replace them.
