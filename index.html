@@ -68,8 +68,6 @@ header{
   margin:auto;
   padding:17px 24px;
   display:flex;
-  flex-wrap:wrap;
-  gap:16px;
   justify-content:space-between;
   align-items:center;
 }
@@ -100,7 +98,6 @@ header{
 
 .nav-right{
   display:flex;
-  flex-wrap:wrap;
   gap:25px;
   align-items:center;
   font-size:14px;
@@ -116,9 +113,6 @@ header{
   border-radius:7px;
   padding:10px 16px;
 }
-
-.nav-right .admin-link{text-decoration:underline;text-underline-offset:4px;padding:10px 0}
-.admin-link:focus-visible{outline:2px solid currentColor;outline-offset:4px;border-radius:2px}
 
 
 /* =========================================================
@@ -878,7 +872,7 @@ footer{
 
 @media(max-width:720px){
 
-  .nav-right a:not(.manage-link):not(.admin-link){
+  .nav-right a:not(.manage-link){
     display:none;
   }
 
@@ -1047,14 +1041,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
     gap: 12px;
   }
 
-  header .nav-right a:not(.manage-link):not(.admin-link) {
+  header .nav-right a:not(.manage-link) {
     display: none;
-  }
-
-  header .nav-right .admin-link {
-    grid-column: 1 / -1;
-    justify-self: center;
-    padding: 4px 8px;
   }
 
   header .nav-right .manage-link {
@@ -1097,7 +1085,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <a href="#" class="manage-link" onclick="manageStay(event)">
         Manage my stay
       </a>
-      <a href="/admin.html" class="admin-link">Admin login</a>
     </div>
 
   </div>
