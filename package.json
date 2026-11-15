@@ -1,7 +1,14 @@
 {
   "name": "ignite-living-checks",
   "private": true,
-  "scripts": { "test": "node --test tests/frontend.test.cjs" },
-  "devDependencies": { "jsdom": "27.4.0" },
-  "engines": { "node": ">=20.19" }
+  "scripts": {
+    "test": "node --test tests/frontend.test.cjs tests/admin-frontend.test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "27.4.0",
+    "node-forge": "1.4.3"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
 }
