@@ -1,6 +1,6 @@
 # GitHub-hosted owner dashboard
 
-Updated 16 November 2026. **Backend released; frontend publication and browser acceptance pending.** The production public API is version 9; the separate owner dashboard remains version 7. Seventeen hosted staging checks passed. Production authorization and the owner-access check succeeded, and the new backend was deployed at 00:11 MYT. Do not treat the migration as accepted until real browser checks pass.
+Updated 16 November 2026. **Live at https://living.igniteinnov.com/admin.html.** The production public API is version 9; the separate owner dashboard remains version 7. PR #7 merged as 8eac5f49748ad67ea0dbf6366a6dc2ebe6614e5c, and GitHub Pages run 43734158946 completed successfully. Real Google owner sign-in and cross-origin record reads passed on the published page.
 
 ## Intended result
 
@@ -45,9 +45,18 @@ PATCHED_BACKEND_SOURCE_DIR=/private/admin-source node --test tests/booking-retri
 
 The builder refuses unreviewed ManageStay/PaymentReview source hashes, leaves the source unchanged, writes generated files to a separate private directory and preserves the other modules. It adds an `admin.*` POST route, a request-local owner identity hook, `AdminApi.gs` and generated `VendorForge.gs`. The complete private project source and its configuration identifiers are not committed. `npm audit` reported no known dependency vulnerabilities at preparation time.
 
-Current verification: **59 checks pass**: 38 frontend tests (29 customer + 9 admin), 9 new authentication/API checks and 12 existing booking/receipt backend checks against the generated output. New auth tests use actual RSA signatures from synthetic keys and the same Forge bundle used in Apps Script, with synthetic Google/Cache/Sheets services. They are not hosted Google OAuth, CORS, consent or Apps Script execution results. Real signed-in browser validation and visual inspection of the new page are pending.
+Automated verification: **59 checks pass**: 38 frontend tests (29 customer + 9 admin), 9 new authentication/API checks and 12 existing booking/receipt backend checks against the generated output. New auth tests use actual RSA signatures from synthetic keys and the same Forge bundle used in Apps Script, with synthetic Google/Cache/Sheets services. These are distinct from the hosted and browser checks below.
 
-Separately, **17 hosted Apps Script staging checks passed**: existing client configuration; live Google key retrieval; Forge execution; anonymous and incorrect-origin denial; nonce creation; malformed credentials; real RS256 signature validation and tamper rejection; short-lived owner sessions; nonce replay prevention; operation allowlisting; isolated fixture reads; request-local principal cleanup; unbound-save rejection before mutation; logout invalidation; and availability of the existing owner handler. The hosted driver uses synthetic signing keys and fixtures, not a real GIS sign-in. Actual Google browser login, cross-origin transport, review UI and production deployment are still unverified.
+Separately, **17 hosted Apps Script staging checks passed**: existing client configuration; live Google key retrieval; Forge execution; anonymous and incorrect-origin denial; nonce creation; malformed credentials; real RS256 signature validation and tamper rejection; short-lived owner sessions; nonce replay prevention; operation allowlisting; isolated fixture reads; request-local principal cleanup; unbound-save rejection before mutation; logout invalidation; and availability of the existing owner handler. The hosted driver uses synthetic signing keys and fixtures, not a real GIS sign-in.
+
+## Published browser verification — 16 November 2026
+
+- The GitHub HTML/CSS/JavaScript loaded on the Living origin; the real owner selected the existing Google account through GIS. The backend verified the Google credential, issued a session and loaded the dashboard at about 00:14 MYT. The browser sign-in requested identity only, not Drive/Sheets permissions.
+- Bookings, payment proofs and stay requests loaded. Each detail screen opened successfully using existing historical test records. Cancelled/processed records displayed the expected locked or historical views. Search and the Needs attention filter worked.
+- Desktop sign-in and dashboard layouts were visually inspected. Sign-out cleared records and returned to the sign-in screen; no server-sign-out failure message appeared. Reloading prepares a new sign-in challenge.
+- The public customer site still returned an available two-night quote for 1–3 December 2026: RM1,800 total, RM500 deposit and RM1,300 balance. No booking request was submitted.
+- No production booking, receipt, request, payment or refund record was changed. Live financial/write decisions were not submitted as tests. Mutation safeguards were checked with synthetic/offline fixtures; physical phone and Safari acceptance remain untested.
+- Direct API URL navigation in this browser's multi-account Google session returned Google's unable-to-open-file page. The customer quote and new admin page both successfully used anonymous cross-origin API transport, and the new admin authenticated correctly. The version-7 legacy deployment was preserved; this release does not claim a new successful browser check of its old Google-hosted URL.
 
 ## Activation sequence
 
