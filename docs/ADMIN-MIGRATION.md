@@ -1,6 +1,6 @@
 # GitHub-hosted owner dashboard
 
-Prepared 15 November 2026. **Draft, not activated or published.** Production remains on public API version 8 and owner dashboard version 7. The static page and API require the Google web client setup, hosted staging checks and deployment steps below before release.
+Prepared 15 November 2026. **Draft, not activated or published.** Production remains on public API version 8 and owner dashboard version 7. The existing Google web client has been identified and the owner reports saving the Living origin. Hosted staging authorization/checks and the deployment steps below remain pending.
 
 ## Intended result
 
@@ -8,15 +8,16 @@ The owner opens `https://living.igniteinnov.com/admin.html`. GitHub Pages serves
 
 Apps Script supplies authenticated JSON and retains the existing booking decisions, payment verification, stay requests, locks, snapshot checks and audit history. Google Sheets and private Drive receipts remain in place. No new paid hosting or database is introduced. Adding a new data operation may still require a backend API change; purely visual changes do not.
 
-## Google setup needed once
+## Existing Google client and activation status
 
-Use the existing authorised owner Google account. The Cloud Console was unavailable in the agent browser on 15 November; no project, client, permission or credential was created or changed.
+Reuse the owner's existing **Ignite Admin Portal** Cloud project and **Ignite Admin Web** OAuth client (Web application, created 27 October 2026). The owner supplied its full Client ID in a Cloud Console screenshot and confirmed saving the additional JavaScript origin on 15 November. No replacement client or project is needed.
 
-1. Open [Google Cloud Console → Clients](https://console.cloud.google.com/auth/clients). Select an appropriate owner-controlled project, or create a dedicated project named **Ignite Living Admin**.
-2. If prompted, configure Google Auth Platform branding as **Ignite Living Admin**, with the owner's support/contact email. Use External audience for the existing Gmail owner and, while testing, add only that owner as a test user. This sign-in only needs identity (`openid`, email/profile), not new Google Drive or Sheets access from the browser. Do not add unrelated scopes or publish the OAuth app broadly for this rollout.
-3. Create an OAuth client of type **Web application**, named **Ignite Living Admin Web**.
-4. Set the authorised JavaScript origin to exactly `https://living.igniteinnov.com` (no path or trailing slash). The GIS popup callback flow does not need a redirect URI. Do not add arbitrary preview origins or localhost to the production client.
-5. Retain the **Client ID**, ending in `.apps.googleusercontent.com`. It is a public application identifier; no client secret, password or token belongs in GitHub or chat.
+- Preserve the existing `https://igniteinnov.com` origin, branding, audience and redirect settings. The additional origin is exactly `https://living.igniteinnov.com`, without a path or trailing slash. The GIS popup callback does not need an additional redirect URI.
+- This browser sign-in needs identity only (`openid`, email/profile); do not add unrelated Drive/Sheets scopes to the website client. No client secret or password is required for this implementation.
+- The owner Apps Script session is accessible. All eight live source modules were copied to a private pre-change checkpoint; the seven runtime modules match the reviewed release, and the existing Customers provisioning module is preserved as well. The release builder ran against that fresh source and the nine signature/authentication checks passed again.
+- The isolated staging source was backed up, then updated with the admin modules and a synthetic-only hosted check driver. Production source, deployment, records and permissions remain unchanged. Staging access was not widened.
+- The hosted check run stopped at Google authorization before executing. Owner phone verification succeeded. Google then displayed its unverified-app warning naming the owner's staging project. Automatic approval review rejected clicking through that warning because specific permission to bypass the sensitive-access warning had not been given. Await the owner's decision, then inspect the actual consent scopes before granting any new access. No hosted admin check has passed yet.
+- The staging driver uses an expiring synthetic RSA-signed fixture, temporarily substitutes a synthetic public key, and restores its prior admin properties and sessions in `finally`. It must never be copied into production. Regenerate an expired fixture before rerunning. Production files contain no such test hook.
 
 Reference: [Google Sign in with Google setup](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid).
 
@@ -47,11 +48,11 @@ Current verification: **59 checks pass**: 38 frontend tests (29 customer + 9 adm
 
 ## Activation sequence
 
-1. Recheck GitHub main and actual saved/deployed Apps Script sources. Obtain the Google web Client ID above. Take an owner-private source/configuration backup; do not reset or copy over the live spreadsheet.
+1. Recheck GitHub main and actual saved/deployed Apps Script sources if anything has changed since the checkpoint. Use the existing Google web Client ID supplied by the owner. Preserve the private source/configuration backup; do not reset or copy over the live spreadsheet.
 2. Prepare the generated source from the reviewed current backend. Test in the existing isolated staging project/database and private receipts folder, with a correctly registered test web origin and the owner login. Keep production data and payment actions out of this test. Do not widen private staging sharing without the owner's confirmation.
 3. Verify hosted execution of the Forge bundle, key retrieval and cache, expiry/logout, cross-origin JSON transport, unauthorized denial, all three review screens, stale decisions and ambiguous-save recovery. The old owner dashboard must still open and the customer quote/account flows must still pass. Do not declare the migration complete based only on offline checks.
 4. Install **AdminApi.gs** and generated **VendorForge.gs** in the production Apps Script project; apply the two narrow patches to **ManageStay.gs** and **PaymentReview.gs**. Preserve other modules, deployments, schema and records. Apps Script may require owner consent for its added external HTTP request capability; complete that consent through the owner account.
-5. Set private Script Properties `ADMIN_GOOGLE_CLIENT_ID` to the new client ID and `ADMIN_ENABLED=true`. Leave `ADMIN_GOOGLE_SUB` absent for the first verified owner login; it is then pinned automatically. Never copy a synthetic subject/key or a test-token bypass into production.
+5. Set private Script Properties `ADMIN_GOOGLE_CLIENT_ID` to the existing client ID and `ADMIN_ENABLED=true`. Leave `ADMIN_GOOGLE_SUB` absent for the first verified owner login; it is then pinned automatically. Never copy a synthetic subject/key or a test-token bypass into production.
 6. Release a new version through the existing public API deployment, preserving its URL, audience and execute-as-owner mode. The new public entry point remains authenticated in application code. Keep the separate version-7 owner deployment unchanged as rollback access.
 7. Publish the GitHub files and verify `admin.html` on the live origin. Sign in as the actual owner and perform read-only record checks. Finish write checks with isolated synthetic staging, not production test bookings or payment claims.
 8. Record actual client/project ownership, backend version, PR/commit, Pages run and hosted acceptance results in an owner-controlled handover. Only then mark the new dashboard active.
