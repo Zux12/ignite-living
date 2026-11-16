@@ -7,8 +7,9 @@ window.IgniteReviews = (() => {
   function card(r) {
     const article = node("article", undefined, "guest-review-card"), head = node("div", undefined, "guest-review-card-head");
     head.append(node("strong", r.name), stars(r.rating)); article.append(head, node("p", r.comment, "guest-review-comment"));
-    const date = new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(r.reviewDate + "T00:00:00Z"));
-    article.append(node("p", (properties[r.propertyId] || r.propertyName) + " · " + date + (r.source === "HOST" ? " · Shared by host" : ""), "guest-review-meta")); return article;
+    // Imported feedback may have no original date; never substitute its import date.
+    const date = r.reviewDate ? new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(r.reviewDate + "T00:00:00Z")) : "";
+    article.append(node("p", (properties[r.propertyId] || r.propertyName) + (date ? " · " + date : "") + (r.source === "HOST" ? " · Shared by host" : ""), "guest-review-meta")); return article;
   }
   function form(container, prefix, owner) {
     const f = node("form", undefined, "guest-review-form");
