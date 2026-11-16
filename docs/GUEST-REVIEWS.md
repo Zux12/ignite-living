@@ -31,3 +31,13 @@ Rollback: restore public Apps Script version 10 and revert the review frontend c
 ## Live acceptance
 
 Frontend commit `04e30ec1219fa2bb59078b4af0f4a32317a2c391` deployed successfully through Pages run `43806185645`. The live homepage loaded its empty published-review list successfully, property filtering worked, and selecting anonymous removed the display-name field. Draft input was cleared without submission. Existing Google owner sign-in succeeded; the Guest reviews workspace loaded its Pending list (zero records), original-date field and entry form. Star selection, anonymous selection and Clear form worked. No production guest review, booking or payment was submitted. Desktop Chrome was visually inspected; physical phone/Safari checks were not performed. A [live admin screenshot](verification/guest-reviews-admin-2026-11-16.jpg) records the new workspace.
+
+## Owner-authorized Mayang Sari import — 16 November 2026
+
+The owner supplied `malaysia_guest_reviews.xlsx` and explicitly approved publication of all entries for Mayang Sari Beach Cottage (IL001). Imported 76 unique records into the previously absent GuestReviews register, with source HOST and status PUBLISHED. Preserved every original review, rating and anonymity choice: 53 named, 23 anonymous; 66 four-star, seven three-star and three two-star reviews. Mean 291/76 = 3.828947…, displayed 3.8/5. No entries were assigned to IL002 or IL003.
+
+The source contains no original review dates. These imported records use an empty reviewDate; import timestamps remain private audit metadata, not claimed review dates. The shared review-card renderer now omits an absent date. The owner entry form still requires a known original date for ordinary manual entry. Source filename, SHA-256 and source row are retained inside each private record for reconciliation; source workbook contents and full register JSON are not committed to GitHub.
+
+All 77 rows (header plus 76 records) were read back through Google Sheets and matched exactly; UUIDs were unique, anonymous names were empty, text values were not formulas, and the other database tabs were untouched. Eight review UI checks passed, including rendering undated imports. Frontend date support commit `55bc50598f33beb8978c29b38cac5c3b2815c146` was deployed successfully by Pages run `43810560382` before publication. The Apps Script deployment remains version 11.
+
+Live browser acceptance confirmed the Mayang Sari filter shows **3.8 / 5 · 76 reviews**, named and anonymous cards, host attribution and no invented dates. More reviews loaded the next page successfully (20 cards displayed). See [publication preview](verification/mayang-sari-published-reviews-2026-11-16.jpg).
