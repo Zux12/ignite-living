@@ -55,6 +55,7 @@
     $("authMessage").textContent = message;
     $("retrySignIn").hidden = false;
     $("retrySignIn").focus();
+    receiptUI.reset();
   }
   async function api(action, payload = {}) {
     const controller = new AbortController(),
@@ -255,6 +256,7 @@
               Math.min(3600000, sessionExpires - Date.now()),
             );
             await load();
+            if (sessionToken) receiptUI.signedIn();
             if (sessionToken) $("refresh").focus();
           } catch (error) {
             clearSession(error.message);
@@ -860,5 +862,9 @@
   $("search").oninput = render;
   $("pending").onchange = render;
 
+  const receiptUI = window.createReceiptWorkspace({
+    rpc, canStart: () => Boolean(sessionToken) && !busy,
+    setWorking: (value) => { busy = value; $("refresh").disabled = value; },
+  });
   start();
 })();
