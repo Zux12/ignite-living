@@ -63,3 +63,13 @@ Validation: all 60 default tests passed, including all-offer snapshots/printing,
 ## Payment labels — 16 November 2026
 
 Renamed “Other stay payments received” to **Balance payment received** in both the form and receipt. The existing `otherPaid` storage field, calculations and receipt numbers are unchanged, so saved receipts remain compatible.
+
+## Final receipt layout and guest review link — 16 November 2026
+
+Every preview and reprint now includes **How was your stay?**, a clickable **Leave a review** link, the printed URL and a local QR asset. Both open `https://living.igniteinnov.com/#leaveReviewHeading`, the existing guest rating/review form. Guests can use their name or post anonymously. No receipt number, name, phone or other customer information is included in the URL or QR. The invitation is independent of any returning-customer promotion.
+
+The form separates total stay charges, payments/refunds and refundable security deposits. Its example makes the RM1,400 = RM300 booking deposit + RM1,100 balance payment workflow explicit. New drafts reset money fields to 0.00. Saved receipts keep their original details and number; the shared presentation adds the review invitation to reprints without changing stored snapshots.
+
+Print preparation waits for both the Ignite Living logo and QR image, refuses an incomplete print if an image cannot load, and permits retry. A4 spacing accommodates all financial rows, all promotion presets and maximum-length customer/property/reference/notes/promotion-heading fields. Print guidance recommends A4, 100% scale and browser headers/footers off.
+
+Validation before publication: **81 automated checks passed**. The actual receipt DOM and all admin styles rendered to one A4 page for both the RM1,400 example and a complete maximum-length sample. PDF links resolved to the correct destination; ZXing decoded the QR from both rendered pages to that same URL. The live destination opened the existing review form with the Mayang Sari property, 1–5 stars and the anonymous option. All issue/print tests used local synthetic records; no production receipt or financial record was created.

@@ -3,6 +3,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
   const $ = id => document.getElementById(id), root = $("receiptsWorkspace"), model = IgniteReceipt;
   let epoch = 0, working = false, receipt = null, retry = null;
   const issuer = { brand: "IGNITE LIVING", company: "IgniteInno Ventures Sdn Bhd", phone: "019-345 5154", email: "info@igniteinnov.com" };
+  const reviewUrl = "https://living.igniteinnov.com/#leaveReviewHeading";
   const moneyFields = [
     ["rental", "Stay / rental charges"], ["extras", "Other charges"], ["discount", "Discount"],
     ["depositPaid", "Booking deposit received"], ["otherPaid", "Balance payment received"], ["paymentRefund", "Stay payment refunded"],
@@ -47,14 +48,20 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
     if (d.notes) { const notes = node("div", undefined, "receipt-notes"); notes.append(node("strong", "Notes"), node("p", d.notes)); p.append(notes); }
     const bottom = node("div", undefined, "receipt-bottom");
     if (d.promotionText) { const promo = node("div", undefined, "receipt-promotion"); promo.append(node("h3", d.promotionTitle || "For your next stay"), node("p", d.promotionText)); bottom.append(promo); }
+    const review = node("div", undefined, "receipt-review"), invitation = node("div"), link = node("a", "Leave a review", "receipt-review-link"), qrLink = node("a"), qr = node("img", undefined, "receipt-review-qr");
+    link.href = qrLink.href = reviewUrl; link.target = qrLink.target = "_blank"; link.rel = qrLink.rel = "noopener noreferrer";
+    qr.src = "assets/brand/guest-review-qr-v1.svg"; qr.alt = "Scan to leave an Ignite Living review"; qr.width = qr.height = 96;
+    invitation.append(node("h3", "How was your stay?"), node("p", "Share your overall star rating and review, with your name or anonymously."), link, node("span", "Click the link or scan the QR code.", "receipt-review-hint"), node("span", reviewUrl, "receipt-review-url"));
+    qrLink.append(qr); review.append(invitation, qrLink); bottom.append(review);
     bottom.append(node("p", "Thank you for choosing Ignite Living.", "receipt-thanks"), node("p", "Computer-generated receipt. No signature is required.", "receipt-fineprint"));
     p.append(bottom); return p;
   }
   root.innerHTML = `<div class="receipt-tool-heading"><div><p class="eyebrow">PAYMENTS, ON PAPER</p><h2 id="receiptsTitle">Receipt generator</h2><p class="muted">Create a receipt for any stay. Save once, then print or reopen it whenever you need.</p></div></div>
     <div class="receipt-editor-layout"><div class="receipt-form-panel"><form id="receiptForm"><h3>Customer &amp; stay</h3>
     <div class="receipt-fields" id="receiptCustomerFields"></div><h3>Charges &amp; payments <small>MYR / RM</small></h3>
-    <p class="muted">Enter the deposit and balance payments already received, plus any refunds already made. A refundable security deposit is tracked separately.</p>
-    <div class="receipt-fields" id="receiptMoneyFields"></div>
+    <p class="receipt-payment-help"><strong>Example: a RM1,400 stay, fully paid.</strong> Enter <strong>1,400</strong> for total stay / rental charges, <strong>300</strong> for booking deposit received and <strong>1,100</strong> for balance payment received.</p>
+    <p class="muted">Enter payments already received and refunds already made. Leave an unpaid balance payment at 0.00.</p>
+    <div id="receiptMoneyFields"></div>
     <label for="receiptNotes">Notes (optional)</label><textarea id="receiptNotes" maxlength="220" rows="2"></textarea>
     <details class="receipt-promo-settings"><summary>Returning-customer promotions</summary>
       <label class="receipt-promo-toggle"><input id="receiptIncludePromotion" type="checkbox">Include promotions at the bottom of this receipt</label>
@@ -73,7 +80,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
     <label class="receipt-confirm"><input id="receiptConfirmed" type="checkbox">I confirm these details and amounts received / refunded are correct.</label>
     <div class="actions"><button id="receiptPreviewButton" type="button">Preview A4</button><button id="receiptSave" class="primary" type="submit">Save &amp; issue receipt</button></div>
     <p class="muted">Saved receipts keep their number and original details. Creating a receipt does not change booking records or move money.</p></form>
-    <div id="receiptSavedActions" class="actions" hidden><button id="receiptPrintButton" class="primary" type="button">Print / Save PDF</button><button id="receiptNew" type="button">New receipt</button></div>
+    <div id="receiptSavedActions" hidden><div class="actions"><button id="receiptPrintButton" class="primary" type="button">Print / Save PDF</button><button id="receiptNew" type="button">New receipt</button></div><p class="muted">Print on A4 at 100% scale. Turn off browser headers and footers. The review link is clickable in the PDF; printed copies include a QR code.</p></div>
     <p id="receiptMessage" class="message" role="status" aria-live="polite"></p></div>
     <div class="receipt-preview-panel"><div class="receipt-preview-label">A4 preview <span id="receiptPreviewStatus">Not saved</span></div><div id="receiptPreview"><div class="receipt-empty"><h3>Your receipt, ready to keep.</h3><p>Enter the details, then choose Preview A4.</p><p>A receipt number is assigned only when you save.</p></div></div></div></div>
     <section class="receipt-history" aria-labelledby="receiptHistoryTitle"><div class="receipt-history-head"><div><h3 id="receiptHistoryTitle">Saved receipts</h3><p class="muted" id="receiptHistoryCount"></p></div><form id="receiptSearchForm"><label for="receiptSearch">Find a receipt</label><div class="toolbar"><input id="receiptSearch" type="search" maxlength="100" placeholder="Number, name, phone or property"><button type="submit">Search / refresh</button></div></form></div><p id="receiptHistoryMessage" role="status"></p><div id="receiptHistoryList"></div></section>`;
@@ -83,7 +90,19 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
     wrap.append(lab, input); $("receiptCustomerFields").append(wrap);
   }
   for (const args of [["name", "Customer name", "text", true, 100], ["phone", "Handphone", "tel", true, 30], ["property", "Property / stay description", "text", true, 100], ["paymentDate", "Payment date", "date", true], ["checkin", "Check-in", "date", true], ["checkout", "Check-out", "date", true], ["method", "Payment method", "text", true, 40], ["reference", "Reference (optional)", "text", false, 80]]) field(...args);
-  for (const [key, label] of moneyFields) { const wrap = node("div"), lab = node("label", label), input = node("input"); lab.htmlFor = input.id = "receipt-" + key; input.type = "number"; input.min = "0"; input.max = "1000000"; input.step = "0.01"; input.inputMode = "decimal"; input.value = "0.00"; wrap.append(lab, input); $("receiptMoneyFields").append(wrap); }
+  for (const [title, keys, hint] of [
+    ["Stay charges", ["rental", "extras", "discount"], "Enter the total for the whole stay, not the nightly rate."],
+    ["Stay payments & refunds", ["depositPaid", "otherPaid", "paymentRefund"], "Booking deposit + balance payment − any stay refund = net stay payments."],
+    ["Refundable security deposit", ["securityPaid", "securityRefund"], "Separate from the booking deposit and stay charges. Leave at 0.00 if not applicable."]
+  ]) {
+    const group = node("fieldset", undefined, "receipt-money-group"), fields = node("div", undefined, "receipt-fields");
+    group.append(node("legend", title), node("p", hint, "muted"));
+    for (const key of keys) {
+      const label = moneyFields.find(item => item[0] === key)[1], wrap = node("div"), lab = node("label", key === "rental" ? "Total stay / rental charges" : label), input = node("input");
+      lab.htmlFor = input.id = "receipt-" + key; input.type = "number"; input.min = "0"; input.max = "1000000"; input.step = "0.01"; input.inputMode = "decimal"; input.defaultValue = "0.00"; wrap.append(lab, input); fields.append(wrap);
+    }
+    group.append(fields); $("receiptMoneyFields").append(group);
+  }
   function message(s) { $("receiptMessage").textContent = s; }
   function promotionText(validate = false) {
     if (!$("receiptIncludePromotion").checked) return "";
@@ -167,11 +186,12 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
     const current = receipt, e = epoch, printButton = $("receiptPrintButton");
     $("receiptPrint").replaceChildren(paper(current)); $("receiptPrint").hidden = false; printButton.disabled = true;
     try {
-      const logo = $("receiptPrint").querySelector(".receipt-logo");
-      if (typeof logo.decode === "function") await logo.decode();
+      const images = Array.from($("receiptPrint").querySelectorAll("img"));
+      const ready = images.filter(image => typeof image.decode === "function").map(image => image.decode());
+      if (ready.length) await Promise.all(ready);
       if (e === epoch && receipt === current) window.print();
     } catch (_) {
-      if (e === epoch) message("The receipt logo could not load. Check your connection and choose Print / Save PDF again.");
+      if (e === epoch) message("The receipt logo or review QR code could not load. Check your connection and choose Print / Save PDF again.");
     } finally { if (e === epoch) printButton.disabled = false; }
   };
   function select(which, force = false) {
