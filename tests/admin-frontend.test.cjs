@@ -91,6 +91,8 @@ async function setup(t, responder) {
     }
     return { ok: true, json: async () => await value };
   };
+  w.eval(fs.readFileSync(path.join(__dirname, "../assets/admin/receipt-model.js"), "utf8"));
+  w.eval(fs.readFileSync(path.join(__dirname, "../assets/admin/receipts.js"), "utf8"));
   w.eval(script);
   await tick();
   const login = async () => {

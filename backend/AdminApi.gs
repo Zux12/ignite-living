@@ -12,6 +12,9 @@ const AA_METHODS = [
   "odSavePayment",
   "odOpenRequest",
   "odSaveRequest",
+  "rrList",
+  "rrGet",
+  "rrIssue",
 ];
 
 function aaFail_(message, code) {
@@ -316,7 +319,10 @@ function aaRpc_(input) {
   };
   aaPrincipal_ = principal;
   try {
-    const result = dispatch[method](input.input);
+    const result = method === "rrList" ? rrList_(input.input)
+      : method === "rrGet" ? rrGet_(input.input)
+      : method === "rrIssue" ? rrIssue_(input.input)
+      : dispatch[method](input.input);
     if (opening && result && result.token)
       cache.put(
         prefix + result.token,

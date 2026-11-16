@@ -121,6 +121,8 @@ function harness() {
     "BookingRequests.gs",
     "VendorForge.gs",
     "AdminApi.gs",
+    "ReceiptModel.gs",
+    "IssuedReceipts.gs",
   ])
     vm.runInContext(fs.readFileSync(path.join(dir, file), "utf8"), c, {
       filename: file,
@@ -135,6 +137,9 @@ function harness() {
     "odSavePayment",
     "odOpenRequest",
     "odSaveRequest",
+    "rrList_",
+    "rrGet_",
+    "rrIssue_",
   ])
     c[name] = (input) => {
       const principal = c.prOwner_();
@@ -193,6 +198,19 @@ function harness() {
   }
   return { c, state, props, cache, send, challenge, credential, login };
 }
+
+check("receipt endpoints require the verified owner session before reading or issuing", () => {
+  const h = harness();
+  for (const method of ["rrList", "rrGet", "rrIssue"])
+    assert.equal(h.send({action:"admin.rpc",method,token:"synthetic-guest-token"}).code,"AUTH_REQUIRED");
+  assert.equal(h.state.calls.length,0);
+  const session=h.login();
+  for (const method of ["rrList", "rrGet", "rrIssue"]) {
+    const response=h.send({action:"admin.rpc",method,token:session.token,input:{confirmed:true}});
+    assert.equal(response.ok,true);
+    assert.equal(h.state.calls.at(-1).name,method+"_");
+  }
+});
 
 check(
   "anonymous and guest tokens cannot read owner records or run arbitrary functions",

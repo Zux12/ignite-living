@@ -48,6 +48,8 @@ fs.copyFileSync(
   path.join(repo, "backend/AdminApi.gs"),
   path.join(output, "AdminApi.gs"),
 );
+fs.copyFileSync(path.join(repo, "backend/IssuedReceipts.gs"), path.join(output, "IssuedReceipts.gs"));
+fs.copyFileSync(path.join(repo, "assets/admin/receipt-model.js"), path.join(output, "ReceiptModel.gs"));
 const forgePackage = require("node-forge/package.json");
 if (forgePackage.version !== "1.4.3")
   throw Error("Review changes before upgrading the verifier dependency.");
@@ -68,5 +70,5 @@ const vendor =
   "\nreturn window.forge;})();}return aaForgeLibrary_;}\n";
 fs.writeFileSync(path.join(output, "VendorForge.gs"), vendor, { mode: 0o600 });
 console.log(
-  "Prepared AdminApi.gs, VendorForge.gs and two narrow routing/auth patches. Original source unchanged.",
+  "Prepared admin API, receipt modules, signature verifier and two narrow routing/auth patches. Original source unchanged.",
 );
