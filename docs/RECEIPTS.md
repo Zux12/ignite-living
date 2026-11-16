@@ -15,7 +15,7 @@
 1. Open the main page's footer **Admin login**, sign in, and choose **Receipt generator**.
 2. Enter customer name, handphone, property/stay description, check-in/check-out dates, payment date, method and optional reference.
 3. Enter charges, discount, payments already received and any refunds already made. A booking deposit is part of stay payments. A refundable security deposit is separate.
-4. Optionally enter notes or enable a returning-customer promotion. No promotion is printed by default.
+4. Optionally enter notes or enable **Returning-customer promotions**. Tick any of the 10%, 20%, 30%, 40%, 50% discounts and/or **1 free day**. The free-day offer requires a calendar date from 1 January 2027 onwards and is valid on that date only. Every enabled promotion also includes **Every 3 stays, get 1 free night** and the start date. No promotion is printed when the section is disabled.
 5. Preview A4, confirm the entered figures, then **Save & issue receipt**. Only saving assigns a number.
 6. **Print / Save PDF**, using A4 paper. Saved receipts can be searched and reopened for reprinting with the original number and details.
 
@@ -51,3 +51,11 @@ No new permission scope, hosting service or database is required. Keep the exist
 The approved orange/blue flame logo is stored unchanged at `assets/brand/ignite-living-logo-v1.png`. Receipt previews and printed copies now use this shared asset. The print button waits for image decoding and reports a load failure without losing the saved receipt. Financial snapshots, numbering and the version-10 backend remain unchanged.
 
 Validation: 56 default tests passed, including delayed/failed logo loads and sign-out during print preparation. The complete receipt rendered on one A4 page with its logo embedded.
+
+## Returning-customer promotion presets — 16 November 2026
+
+The owner can tick 10%, 20%, 30%, 40%, 50% and 1 free day. Multiple selections are retained. The free-day calendar requires a real date on or after **1 January 2027**, and the receipt states that it is valid on that date only. Enabling promotions always adds **Every 3 stays, get 1 free night** and **Valid for stays from 1 Jan 2027 (after Dec 2026)**. Receipt totals are not reduced by these future-stay offers.
+
+The selected offers and exact free-day date are composed into the existing immutable `promotionText` snapshot, within its 200-character limit. The existing version-10 backend persists and reprints them without a redeployment or schema change. Historical receipts retain their original terms. Saved receipts show their stored message; new drafts reset all offer selections. This is a receipt promotion feature: stay counting, entitlement verification and redemption remain manual; no automatic loyalty credits or booking discounts are applied.
+
+Validation: all 60 default tests passed, including all-offer snapshots/printing, invalid and pre-2027 dates, leap-day selection, opt-out, unchanged monetary totals, legacy reprints and draft reset. A worst-case receipt with every offer, all financial rows and maximum-length notes renders on one A4 page. No production receipt or financial record was created for testing.

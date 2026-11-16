@@ -56,7 +56,20 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
     <p class="muted">Enter amounts already received or refunded. A booking deposit counts towards the stay; a refundable security deposit is tracked separately.</p>
     <div class="receipt-fields" id="receiptMoneyFields"></div>
     <label for="receiptNotes">Notes (optional)</label><textarea id="receiptNotes" maxlength="220" rows="2"></textarea>
-    <details class="receipt-promo-settings"><summary>Optional returning-customer promotion</summary><label><input id="receiptIncludePromotion" type="checkbox">Include a promotion at the bottom</label><label for="receiptPromotionTitle">Heading</label><input id="receiptPromotionTitle" maxlength="65" placeholder="For your next stay"><label for="receiptPromotionText">Offer or message</label><textarea id="receiptPromotionText" maxlength="200" placeholder="Enter an offer only when you have decided its terms."></textarea></details>
+    <details class="receipt-promo-settings"><summary>Returning-customer promotions</summary>
+      <label class="receipt-promo-toggle"><input id="receiptIncludePromotion" type="checkbox">Include promotions at the bottom of this receipt</label>
+      <div id="receiptPromotionChoices" hidden>
+        <fieldset class="receipt-promo-offers"><legend>Tick the offers for this customer</legend><div class="receipt-promo-grid">
+          ${[10,20,30,40,50].map(rate => `<label><input id="receiptPromo${rate}" type="checkbox">${rate}% discount</label>`).join("")}
+          <label><input id="receiptPromoFreeDay" type="checkbox">1 free day</label>
+        </div></fieldset>
+        <div id="receiptFreeDayField" hidden><label for="receiptFreeDayDate">Free-day date — valid on this date only</label><input id="receiptFreeDayDate" type="date" min="2027-01-01" max="2099-12-31" aria-describedby="receiptPromotionValidity" disabled></div>
+        <p class="receipt-promo-loyalty"><strong>Always included:</strong> Every 3 stays, get 1 free night.</p>
+        <p id="receiptPromotionValidity" class="muted">All promotions are valid for stays from 1 January 2027 (after December 2026).</p>
+        <p class="muted">These offers are for a future stay. They do not change the charges on this receipt.</p>
+      </div>
+      <div id="receiptPromotionMessage" hidden><label for="receiptPromotionTitle">Heading</label><input id="receiptPromotionTitle" maxlength="65" placeholder="Returning-customer offers"><label for="receiptPromotionText">Promotion printed on the receipt</label><textarea id="receiptPromotionText" rows="5" readonly></textarea></div>
+    </details>
     <label class="receipt-confirm"><input id="receiptConfirmed" type="checkbox">I confirm these details and amounts received / refunded are correct.</label>
     <div class="actions"><button id="receiptPreviewButton" type="button">Preview A4</button><button id="receiptSave" class="primary" type="submit">Save &amp; issue receipt</button></div>
     <p class="muted">Saved receipts keep their number and original details. Creating a receipt does not change booking records or move money.</p></form>
@@ -72,8 +85,28 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
   for (const args of [["name", "Customer name", "text", true, 100], ["phone", "Handphone", "tel", true, 30], ["property", "Property / stay description", "text", true, 100], ["paymentDate", "Payment date", "date", true], ["checkin", "Check-in", "date", true], ["checkout", "Check-out", "date", true], ["method", "Payment method", "text", true, 40], ["reference", "Reference (optional)", "text", false, 80]]) field(...args);
   for (const [key, label] of moneyFields) { const wrap = node("div"), lab = node("label", label), input = node("input"); lab.htmlFor = input.id = "receipt-" + key; input.type = "number"; input.min = "0"; input.max = "1000000"; input.step = "0.01"; input.inputMode = "decimal"; input.value = "0.00"; wrap.append(lab, input); $("receiptMoneyFields").append(wrap); }
   function message(s) { $("receiptMessage").textContent = s; }
-  function raw() { const d = { amounts: {}, includePromotion: $("receiptIncludePromotion").checked, notes: $("receiptNotes").value, promotionTitle: $("receiptPromotionTitle").value, promotionText: $("receiptPromotionText").value }; for (const key of ["name", "phone", "property", "paymentDate", "checkin", "checkout", "method", "reference"]) d[key] = $("receipt-" + key).value; for (const [key] of moneyFields) d.amounts[key] = $("receipt-" + key).value; return d; }
-  function lockForm(locked) { for (const input of $("receiptForm").querySelectorAll("input,textarea,button")) input.disabled = locked; }
+  function promotionText(validate = false) {
+    if (!$("receiptIncludePromotion").checked) return "";
+    const offers = [], discounts = [10,20,30,40,50].filter(rate => $("receiptPromo" + rate).checked);
+    if (discounts.length) offers.push("Return-stay discounts: " + discounts.map(rate => rate + "%").join(", ") + ".");
+    if ($("receiptPromoFreeDay").checked) {
+      const value = $("receiptFreeDayDate").value, date = new Date(value + "T00:00:00Z");
+      const valid = /^20\d{2}-\d{2}-\d{2}$/.test(value) && Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value && value >= "2027-01-01";
+      if (validate && !valid) throw Error("Choose the free-day date from 1 January 2027 onwards.");
+      offers.push(valid ? "1 free day: " + dateLabel(value) + " only." : "1 free day: select a date.");
+    }
+    offers.push("Every 3 stays, get 1 free night.", "Valid for stays from 1 Jan 2027 (after Dec 2026).");
+    return offers.join(" ");
+  }
+  function syncPromotions() {
+    const included = $("receiptIncludePromotion").checked, freeDay = included && $("receiptPromoFreeDay").checked;
+    $("receiptPromotionChoices").hidden = !included; $("receiptPromotionMessage").hidden = !included;
+    $("receiptFreeDayField").hidden = !freeDay; $("receiptFreeDayDate").disabled = !freeDay; $("receiptFreeDayDate").required = freeDay;
+    $("receiptPromotionText").value = promotionText();
+  }
+  for (const id of ["receiptIncludePromotion", ...[10,20,30,40,50].map(rate => "receiptPromo" + rate), "receiptPromoFreeDay", "receiptFreeDayDate"]) $(id).addEventListener("input", syncPromotions);
+  function raw() { const d = { amounts: {}, includePromotion: $("receiptIncludePromotion").checked, notes: $("receiptNotes").value, promotionTitle: $("receiptPromotionTitle").value || "Returning-customer offers", promotionText: promotionText(true) }; for (const key of ["name", "phone", "property", "paymentDate", "checkin", "checkout", "method", "reference"]) d[key] = $("receipt-" + key).value; for (const [key] of moneyFields) d.amounts[key] = $("receipt-" + key).value; return d; }
+  function lockForm(locked) { for (const input of $("receiptForm").querySelectorAll("input,textarea,button")) input.disabled = locked; if (!locked) syncPromotions(); }
   function show(r) {
     receipt = r.number ? r : null; $("receiptPreview").replaceChildren(paper(r)); $("receiptPreviewStatus").textContent = r.number || "Draft · not saved";
     $("receiptPrint").replaceChildren(); $("receiptPrint").hidden = true; $("receiptSavedActions").hidden = !r.number;
@@ -83,6 +116,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
       for (const [key] of moneyFields) $("receipt-" + key).value = (r.details.amounts[key] / 100).toFixed(2);
       $("receiptNotes").value = r.details.notes; $("receiptPromotionTitle").value = r.details.promotionTitle; $("receiptPromotionText").value = r.details.promotionText;
       $("receiptIncludePromotion").checked = Boolean(r.details.promotionText); $("receiptConfirmed").checked = true; lockForm(true);
+      $("receiptPromotionChoices").hidden = true; $("receiptPromotionMessage").hidden = !r.details.promotionText;
     }
   }
   function newDraft() {
