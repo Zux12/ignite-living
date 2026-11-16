@@ -14,7 +14,7 @@
 
 1. Open the main page's footer **Admin login**, sign in, and choose **Receipt generator**.
 2. Enter customer name, handphone, property/stay description, check-in/check-out dates, payment date, method and optional reference.
-3. Enter charges, discount, payments already received and any refunds already made. A booking deposit is part of stay payments. A refundable security deposit is separate.
+3. Enter charges, discount, the **Booking deposit received**, the **Balance payment received**, and any refunds already made. For a RM1,400 stay paid as RM300 before arrival and RM1,100 on arrival, enter RM300 as the deposit and RM1,100 as the balance payment. A refundable security deposit is separate.
 4. Optionally enter notes or enable **Returning-customer promotions**. Tick any of the 10%, 20%, 30%, 40%, 50% discounts and/or **1 free day**. The free-day offer requires a calendar date from 1 January 2027 onwards and is valid on that date only. Every enabled promotion also includes **Every 3 stays, get 1 free night** and the start date. No promotion is printed when the section is disabled.
 5. Preview A4, confirm the entered figures, then **Save & issue receipt**. Only saving assigns a number.
 6. **Print / Save PDF**, using A4 paper. Saved receipts can be searched and reopened for reprinting with the original number and details.
@@ -59,3 +59,7 @@ The owner can tick 10%, 20%, 30%, 40%, 50% and 1 free day. Multiple selections a
 The selected offers and exact free-day date are composed into the existing immutable `promotionText` snapshot, within its 200-character limit. The existing version-10 backend persists and reprints them without a redeployment or schema change. Historical receipts retain their original terms. Saved receipts show their stored message; new drafts reset all offer selections. This is a receipt promotion feature: stay counting, entitlement verification and redemption remain manual; no automatic loyalty credits or booking discounts are applied.
 
 Validation: all 60 default tests passed, including all-offer snapshots/printing, invalid and pre-2027 dates, leap-day selection, opt-out, unchanged monetary totals, legacy reprints and draft reset. A worst-case receipt with every offer, all financial rows and maximum-length notes renders on one A4 page. No production receipt or financial record was created for testing.
+
+## Payment labels — 16 November 2026
+
+Renamed “Other stay payments received” to **Balance payment received** in both the form and receipt. The existing `otherPaid` storage field, calculations and receipt numbers are unchanged, so saved receipts remain compatible.

@@ -5,7 +5,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
   const issuer = { brand: "IGNITE LIVING", company: "IgniteInno Ventures Sdn Bhd", phone: "019-345 5154", email: "info@igniteinnov.com" };
   const moneyFields = [
     ["rental", "Stay / rental charges"], ["extras", "Other charges"], ["discount", "Discount"],
-    ["depositPaid", "Booking deposit received"], ["otherPaid", "Other stay payments received"], ["paymentRefund", "Stay payment refunded"],
+    ["depositPaid", "Booking deposit received"], ["otherPaid", "Balance payment received"], ["paymentRefund", "Stay payment refunded"],
     ["securityPaid", "Refundable security deposit received"], ["securityRefund", "Security deposit refunded"],
   ];
   function node(tag, text, cls) { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; }
@@ -30,7 +30,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
     function row(label, value, cls) { const tr = node("tr", undefined, cls); tr.append(node("th", label), node("td", model.money(value))); body.append(tr); }
     row("Stay / rental charges", a.rental); if (a.extras) row("Other charges", a.extras); if (a.discount) row("Less: discount", -a.discount);
     row("Total stay charges", t.charges, "receipt-subtotal");
-    row("Booking deposit received", a.depositPaid); row("Other stay payments received", a.otherPaid);
+    row("Booking deposit received", a.depositPaid); row("Balance payment received", a.otherPaid);
     if (a.paymentRefund) row("Less: stay payment refunded", -a.paymentRefund);
     row("Net stay payments", t.stayPaid, "receipt-subtotal");
     row("Outstanding stay balance", t.balanceDue);
@@ -53,7 +53,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
   root.innerHTML = `<div class="receipt-tool-heading"><div><p class="eyebrow">PAYMENTS, ON PAPER</p><h2 id="receiptsTitle">Receipt generator</h2><p class="muted">Create a receipt for any stay. Save once, then print or reopen it whenever you need.</p></div></div>
     <div class="receipt-editor-layout"><div class="receipt-form-panel"><form id="receiptForm"><h3>Customer &amp; stay</h3>
     <div class="receipt-fields" id="receiptCustomerFields"></div><h3>Charges &amp; payments <small>MYR / RM</small></h3>
-    <p class="muted">Enter amounts already received or refunded. A booking deposit counts towards the stay; a refundable security deposit is tracked separately.</p>
+    <p class="muted">Enter the deposit and balance payments already received, plus any refunds already made. A refundable security deposit is tracked separately.</p>
     <div class="receipt-fields" id="receiptMoneyFields"></div>
     <label for="receiptNotes">Notes (optional)</label><textarea id="receiptNotes" maxlength="220" rows="2"></textarea>
     <details class="receipt-promo-settings"><summary>Returning-customer promotions</summary>
