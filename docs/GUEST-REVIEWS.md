@@ -27,3 +27,7 @@ Public API deployment: **version 11**, released 16 November 2026 at 12:45 MYT, u
 - Hosted synthetic records remained in staging and ended Hidden. Production acceptance uses read-only lists and unsubmitted form drafts.
 
 Rollback: restore public Apps Script version 10 and revert the review frontend commit together. Preserve the GuestReviews register and existing version-7 legacy owner deployment; never delete records during rollback.
+
+## Live acceptance
+
+Frontend commit `04e30ec1219fa2bb59078b4af0f4a32317a2c391` deployed successfully through Pages run `43806185645`. The live homepage loaded its empty published-review list successfully, property filtering worked, and selecting anonymous removed the display-name field. Draft input was cleared without submission. Existing Google owner sign-in succeeded; the Guest reviews workspace loaded its Pending list (zero records), original-date field and entry form. Star selection, anonymous selection and Clear form worked. No production guest review, booking or payment was submitted. Desktop Chrome was visually inspected; physical phone/Safari checks were not performed. A [live admin screenshot](verification/guest-reviews-admin-2026-11-16.jpg) records the new workspace.
