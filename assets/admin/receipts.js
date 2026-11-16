@@ -14,8 +14,9 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
   function dateLabel(s) { return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(s + "T00:00:00Z")); }
   function paper(r) {
     const p = node("article", undefined, "receipt-paper"), d = r.details, a = d.amounts, t = r.totals, i = r.issuer || issuer;
-    const head = node("div", undefined, "receipt-letterhead"), logo = node("div", "LOGO", "receipt-logo-placeholder"), brand = node("div");
-    brand.append(node("h2", i.brand), node("p", i.company), node("p", i.phone + " · " + i.email));
+    const head = node("div", undefined, "receipt-letterhead"), logo = node("img", undefined, "receipt-logo"), brand = node("div", undefined, "receipt-issuer");
+    logo.src = "assets/brand/ignite-living-logo-v1.png"; logo.alt = i.brand; logo.width = 2098; logo.height = 750;
+    brand.append(node("p", i.company), node("p", i.phone), node("p", i.email));
     head.append(logo, brand); p.append(head);
     const title = node("div", undefined, "receipt-title-row"), meta = node("div", undefined, "receipt-meta");
     meta.append(node("strong", r.number || "DRAFT · NOT SAVED"), node("span", r.savedAt ? "Issued " + dateLabel(localDate(new Date(r.savedAt))) : "A number is assigned when saved"));
@@ -90,6 +91,7 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
     $("receiptPreview").replaceChildren(node("p", "Enter customer details and choose Preview A4.", "receipt-empty"));
     $("receiptPreviewStatus").textContent = "Not saved"; $("receiptSavedActions").hidden = true;
     $("receiptPrint").replaceChildren(); $("receiptPrint").hidden = true; $("receiptSave").textContent = "Save & issue receipt"; message("");
+    $("receiptPrintButton").disabled = false;
   }
   async function history() {
     const e = epoch; $("receiptHistoryMessage").textContent = "Loading saved receipts…";
@@ -126,7 +128,18 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking }) => {
   };
   $("receiptNew").onclick = () => { if (!working) newDraft(); };
   $("receiptSearchForm").onsubmit = e => { e.preventDefault(); if (!working) history(); };
-  $("receiptPrintButton").onclick = () => { if (!receipt || working) return; $("receiptPrint").replaceChildren(paper(receipt)); $("receiptPrint").hidden = false; window.print(); };
+  $("receiptPrintButton").onclick = async () => {
+    if (!receipt || working) return;
+    const current = receipt, e = epoch, printButton = $("receiptPrintButton");
+    $("receiptPrint").replaceChildren(paper(current)); $("receiptPrint").hidden = false; printButton.disabled = true;
+    try {
+      const logo = $("receiptPrint").querySelector(".receipt-logo");
+      if (typeof logo.decode === "function") await logo.decode();
+      if (e === epoch && receipt === current) window.print();
+    } catch (_) {
+      if (e === epoch) message("The receipt logo could not load. Check your connection and choose Print / Save PDF again.");
+    } finally { if (e === epoch) printButton.disabled = false; }
+  };
   function select(which) { if (working) return; const receipts = which === "receipts"; root.hidden = !receipts; $("bookingsWorkspace").hidden = receipts; $("showReceipts").setAttribute("aria-pressed", String(receipts)); $("showBookings").setAttribute("aria-pressed", String(!receipts)); if (receipts) history(); }
   $("showReceipts").onclick = () => { if (canStart()) select("receipts"); }; $("showBookings").onclick = () => select("bookings");
   newDraft();

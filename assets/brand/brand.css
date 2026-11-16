@@ -1,0 +1,12 @@
+/* Approved Ignite Living artwork, preserved without recolouring or distortion. */
+.ignite-logo{display:block;width:196px;max-width:100%;height:auto;object-fit:contain;box-sizing:border-box}
+.ignite-logo.on-dark{background:#fff;padding:6px 10px;border-radius:7px}
+.ignite-logo.footer-logo{width:156px;margin-bottom:10px}
+.ignite-logo.gallery-logo{width:170px;margin:auto}
+.ignite-logo.document-logo{width:190px;margin-bottom:18px}
+.ignite-logo.guest-logo{width:164px;margin-bottom:14px}
+.site-header .brand{min-width:0;flex-shrink:1}
+.site-header .ignite-logo{width:178px}
+.site-header .account-nav{flex-shrink:0}
+@media(max-width:600px){.site-header .ignite-logo{width:142px}.ignite-logo.document-logo{width:170px}}
+@media(max-width:360px){.site-header{flex-wrap:wrap}.site-header .account-nav{margin-left:auto}}

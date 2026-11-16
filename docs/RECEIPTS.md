@@ -19,7 +19,7 @@
 5. Preview A4, confirm the entered figures, then **Save & issue receipt**. Only saving assigns a number.
 6. **Print / Save PDF**, using A4 paper. Saved receipts can be searched and reopened for reprinting with the original number and details.
 
-The document has a logo placeholder and states that no signature is required. All money uses MYR/RM and integer-sen calculations. Receipt numbers follow `ILR-YYYY-NNNNNN`, with the year determined at issue time in Malaysia.
+The document uses the approved Ignite Living logo and states that no signature is required. All money uses MYR/RM and integer-sen calculations. Receipt numbers follow `ILR-YYYY-NNNNNN`, with the year determined at issue time in Malaysia.
 
 ## Persistence and recovery
 
@@ -45,3 +45,9 @@ No new permission scope, hosting service or database is required. Keep the exist
 - Seven hosted checks in the isolated staging spreadsheet passed: same-number replay, correct monetary buckets, exact snapshot read-back, search, single durable row, persistent counter and unchanged booking data.
 - The actual receipt DOM/CSS rendered to one A4 page with all financial rows, maximum-length customer/property/reference/notes/promotion text. This print-engine check complements browser preview checks; physical printer and Safari output remain user acceptance items.
 - No test receipt or financial mutation is submitted in production.
+
+## Logo integration — 16 November 2026
+
+The approved orange/blue flame logo is stored unchanged at `assets/brand/ignite-living-logo-v1.png`. Receipt previews and printed copies now use this shared asset. The print button waits for image decoding and reports a load failure without losing the saved receipt. Financial snapshots, numbering and the version-10 backend remain unchanged.
+
+Validation: 56 default tests passed, including delayed/failed logo loads and sign-out during print preparation. The complete receipt rendered on one A4 page with its logo embedded.
