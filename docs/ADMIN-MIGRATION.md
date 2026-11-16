@@ -1,6 +1,6 @@
 # GitHub-hosted owner dashboard
 
-Updated 16 November 2026. **Live at https://living.igniteinnov.com/admin.html.** The production public API is version 9; the separate owner dashboard remains version 7. PR #7 merged as 8eac5f49748ad67ea0dbf6366a6dc2ebe6614e5c, and GitHub Pages run 43734158946 completed successfully. Real Google owner sign-in and cross-origin record reads passed on the published page.
+Updated 16 November 2026. **Live at https://living.igniteinnov.com/admin.html.** The production public API is version 10 (receipt release; see [RECEIPTS.md](RECEIPTS.md)); the separate owner dashboard remains version 7. PR #7 merged as 8eac5f49748ad67ea0dbf6366a6dc2ebe6614e5c, and GitHub Pages run 43734158946 completed successfully. Real Google owner sign-in and cross-origin record reads passed on the published page.
 
 ## Intended result
 

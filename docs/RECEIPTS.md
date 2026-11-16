@@ -2,6 +2,14 @@
 
 16 November 2026. The GitHub admin page now includes a general-purpose receipt editor and saved receipt history. This is separate from uploaded payment proofs and does not change booking, payment-verification or refund records.
 
+## Published release
+
+- Live at https://living.igniteinnov.com/admin.html, reached through the main page's footer Admin login.
+- Production public Apps Script deployment updated to **version 10** at 10:13 MYT, keeping its URL, execute-as-owner setting and audience. The separate version-7 owner deployment was not changed. Saved AdminApi, ReceiptModel and IssuedReceipts source matched the reviewed generated files exactly.
+- PR #8 merged as `3ca8b79604a24ae3dcb1b019457345a942ec317e`. Follow-up `222ea8919232b48bfbfe266d8d155e3ba84ef957` versions the admin assets so a cached pre-receipt script cannot leave the new tab inactive. Pages runs `43790896130` and `43791238743` both succeeded.
+- Real owner Google sign-in succeeded on the published release. The Receipt generator tab opened; its authenticated register read returned zero saved receipts. A local-only sample draft correctly showed RM1,700 stay payments, RM150 security deposit held, RM1,850 net received and no outstanding stay balance. The logo placeholder and no-signature text were visible. No number was assigned.
+- Sign-out cleared the sample draft and printable customer data. The admin page was left ready for the owner to sign in. No production receipt, booking, payment or refund record was created or changed during acceptance.
+
 ## Owner workflow
 
 1. Open the main page's footer **Admin login**, sign in, and choose **Receipt generator**.
