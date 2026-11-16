@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#073b4c">
 
 <title>Ignite Living | Flexible Furnished Living</title>
+<link rel="stylesheet" href="assets/reviews.css?v=20261116-reviews-1">
+<script defer src="assets/reviews-common.js?v=20261116-reviews-1"></script>
+<script defer src="assets/guest-reviews.js?v=20261116-reviews-1"></script>
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon-v1.svg">
 <link rel="stylesheet" href="assets/brand/brand.css?v=20261116-brand-1">
 
@@ -1081,6 +1084,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
       <a href="#homes">Our Homes</a>
       <a href="#" class="manage-link" onclick="registerStay(event)">Register</a>
       <a href="#about">How it works</a>
+      <a href="#guestReviews">Guest reviews</a>
       <a href="#" class="manage-link" onclick="manageStay(event)">
         Manage my stay
       </a>
@@ -1579,6 +1583,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
 
   </div>
 
+</section>
+
+<section id="guestReviews" class="guest-reviews-section" aria-labelledby="guestReviewsHeading">
+  <div class="guest-reviews-heading"><div><h2 id="guestReviewsHeading">Memories from our guests.</h2><p>A few words about the places, the moments and the stays.</p></div><div id="guestReviewSummary" class="guest-review-summary" aria-live="polite">Loading ratings…</div></div>
+  <div class="guest-reviews-layout"><div><div class="guest-review-tools"><label for="guestReviewFilter">Reviews for<select id="guestReviewFilter"><option value="">All homes</option><option value="IL001">Mayang Sari Beach Cottage</option><option value="IL002">Laman Seri Residence</option><option value="IL003">Seri Teduh Residence</option></select></label><button id="guestReviewRefresh" type="button">Refresh</button></div><div id="guestReviewList"></div><p id="guestReviewListMessage" class="guest-review-list-message" role="status"></p><button id="guestReviewMore" class="review-more" type="button" hidden>More reviews</button></div>
+  <section class="guest-review-form-panel" aria-labelledby="leaveReviewHeading"><h3 id="leaveReviewHeading">How was your stay?</h3><p>Choose an overall rating and leave a review with your name or anonymously. Reviews appear after moderation. Please keep contact details and booking references out of your review.</p><div id="guestReviewFormHost"></div></section></div>
 </section>
 
 </main>

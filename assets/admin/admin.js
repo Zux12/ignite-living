@@ -56,6 +56,7 @@
     $("retrySignIn").hidden = false;
     $("retrySignIn").focus();
     receiptUI.reset();
+    guestReviewUI.reset();
   }
   async function api(action, payload = {}) {
     const controller = new AbortController(),
@@ -862,9 +863,14 @@
   $("search").oninput = render;
   $("pending").onchange = render;
 
+  const guestReviewUI = window.createGuestReviewWorkspace({
+    rpc, canStart: () => Boolean(sessionToken) && !busy,
+    setWorking: (value) => { busy = value; $("refresh").disabled = value; },
+  });
   const receiptUI = window.createReceiptWorkspace({
     rpc, canStart: () => Boolean(sessionToken) && !busy,
     setWorking: (value) => { busy = value; $("refresh").disabled = value; },
+    onReviews: () => guestReviewUI.activate(),
   });
   start();
 })();

@@ -16,8 +16,11 @@
     <link rel="stylesheet" href="assets/admin/admin.css?v=20261116-promotions-1" />
     <link rel="stylesheet" href="assets/admin/receipts.css?v=20261116-promotions-1" />
     <script defer src="assets/admin/receipt-model.js?v=20261116-promotions-1"></script>
-    <script defer src="assets/admin/receipts.js?v=20261116-balance-label-1"></script>
-    <script defer src="assets/admin/admin.js?v=20261116-promotions-1"></script>
+    <script defer src="assets/admin/receipts.js?v=20261116-reviews-1"></script>
+    <link rel="stylesheet" href="assets/reviews.css?v=20261116-reviews-1">
+    <script defer src="assets/reviews-common.js?v=20261116-reviews-1"></script>
+    <script defer src="assets/admin/guest-reviews.js?v=20261116-reviews-1"></script>
+    <script defer src="assets/admin/admin.js?v=20261116-reviews-1"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to dashboard</a>
@@ -89,8 +92,9 @@
           </div>
         </div>
         <nav class="workspace-nav" id="workspaceNav" aria-label="Admin tools">
-          <button id="showBookings" type="button" aria-pressed="true">Bookings &amp; reviews</button>
+          <button id="showBookings" type="button" aria-pressed="true">Bookings &amp; payments</button>
           <button id="showReceipts" type="button" aria-pressed="false">Receipt generator</button>
+          <button id="showGuestReviews" type="button" aria-pressed="false">Guest reviews</button>
         </nav>
         <div id="bookingsWorkspace">
         <div
@@ -117,6 +121,7 @@
         </div>
         </div>
         <section id="receiptsWorkspace" hidden aria-labelledby="receiptsTitle"></section>
+        <section id="guestReviewsWorkspace" hidden aria-labelledby="guestReviewsTitle"></section>
       </section>
     </main>
     <footer>

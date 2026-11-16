@@ -15,6 +15,9 @@ const AA_METHODS = [
   "rrList",
   "rrGet",
   "rrIssue",
+  "grList",
+  "grAdd",
+  "grModerate",
 ];
 
 function aaFail_(message, code) {
@@ -322,6 +325,9 @@ function aaRpc_(input) {
     const result = method === "rrList" ? rrList_(input.input)
       : method === "rrGet" ? rrGet_(input.input)
       : method === "rrIssue" ? rrIssue_(input.input)
+      : method === "grList" ? grAdminList_(input.input)
+      : method === "grAdd" ? grAdminAdd_(input.input)
+      : method === "grModerate" ? grAdminModerate_(input.input)
       : dispatch[method](input.input);
     if (opening && result && result.token)
       cache.put(

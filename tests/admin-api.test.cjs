@@ -140,6 +140,9 @@ function harness() {
     "rrList_",
     "rrGet_",
     "rrIssue_",
+    "grAdminList_",
+    "grAdminAdd_",
+    "grAdminModerate_",
   ])
     c[name] = (input) => {
       const principal = c.prOwner_();
@@ -430,3 +433,5 @@ check(
     );
   },
 );
+
+check('guest review administration uses owner authentication and clears request principal',()=>{const h=harness();for(const method of ['grList','grAdd','grModerate'])assert.equal(h.send({action:'admin.rpc',method,token:''}).code,'AUTH_REQUIRED');const session=h.login();for(const [method,name] of [['grList','grAdminList_'],['grAdd','grAdminAdd_'],['grModerate','grAdminModerate_']]){assert.equal(h.send({action:'admin.rpc',token:session.token,method,args:{}}).ok,true);assert.equal(h.state.calls.at(-1).name,name);assert.equal(h.c.aaPrincipal_,null);}});

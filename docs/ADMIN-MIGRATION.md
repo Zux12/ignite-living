@@ -72,3 +72,7 @@ Separately, **17 hosted Apps Script staging checks passed**: existing client con
 ## Rollback
 
 Set `ADMIN_ENABLED=false`, restore the preceding public backend deployment version if necessary, and revert only the new frontend files. The existing Google-hosted owner dashboard and spreadsheet menus remain available. Never remove booking/proof/audit rows as part of this rollback.
+
+## Guest review extension — 16 November 2026
+
+The GitHub dashboard now also provides a **Guest reviews** workspace for importing genuine existing feedback and moderating new guest submissions. Three allowlisted owner methods (`grList`, `grAdd`, `grModerate`) are added to the existing ten booking/receipt methods. Public review read/submission uses separate `reviews.*` routing and exposes only published public fields. See [GUEST-REVIEWS.md](GUEST-REVIEWS.md) for storage, moderation, release validation and rollback details.
