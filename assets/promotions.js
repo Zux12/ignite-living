@@ -13,12 +13,25 @@
   };
   window.createPromotionPublic=({fetchPricing,clock=()=>Date.now()})=>{
     let data=null,receivedAt=0,loading=false;
+    const cards=[...document.querySelectorAll('[id^="propertyPrice-"]')];
+    function status(failed=false){
+      for(const price of cards){
+        const id=price.id.slice('propertyPrice-'.length),term=document.getElementById('propertyOffer-'+id),packages=document.getElementById('promotionPackages-'+id);
+        for(const host of [price,packages].filter(Boolean)){
+          host.replaceChildren(node('span',failed?'Prices couldn’t load':'Loading prices…','promotion-loading'));
+          host.setAttribute('aria-busy',String(!failed));
+          if(failed){const retry=node('button','Retry prices','promotion-retry');retry.type='button';retry.onclick=refresh;host.append(retry);}
+        }
+        if(term)term.textContent=failed?'Select your dates to get a confirmed quote.':'Checking the latest rates and offers.';
+      }
+    }
     function today(){const now=Date.parse(data.serverTime)+Math.max(0,clock()-receivedAt);return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));}
     function render(){if(!data)return;for(const property of data.properties){
       if(!fields.every(([key])=>Number.isFinite(property.standard?.[key])&&property.standard[key]>0))continue;
       const price=document.getElementById('propertyPrice-'+property.propertyId),term=document.getElementById('propertyOffer-'+property.propertyId),offer=validOffer(property.promotion)&&property.promotion.endDate>=today()?property.promotion:null;
       if(price&&term){
         price.replaceChildren();term.replaceChildren();
+        price.setAttribute('aria-busy','false');
         const primary=node('div',undefined,'promotion-card-primary');
         const discounted=offer&&offer.rates.nightlyRate<property.standard.nightlyRate;
         if(offer)primary.append(node('span',offer.title,'promotion-badge'));
@@ -37,10 +50,10 @@
         if(offer)term.append(node('span','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)),node('br'),node('span','Entire stay must be within these nights.'));
         else term.textContent='Select your dates to check availability and confirm the total.';
       }
-      const packages=document.getElementById('promotionPackages-'+property.propertyId);if(packages){packages.replaceChildren(node('strong',offer?offer.title+' · promotional stay prices':'Standard stay prices'));const list=node('ul',undefined,'promotion-rate-list');for(const[key,label]of fields){const li=node('li');li.append(document.createTextNode(label+': '));if(offer&&offer.rates[key]<property.standard[key])li.append(node('del',money(property.standard[key])),node('strong',money(offer.rates[key])));else li.append(node('span',money(property.standard[key])));list.append(li);}packages.append(list);if(offer)packages.append(node('p','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)+'. Your entire stay must fall within these nights; check-out can be the following day.','promotion-validity'));packages.append(node('p','Cleaning is free. Up to 30 guests, with no extra charge per person. Select dates to confirm your total.','pricing-note'));}
+      const packages=document.getElementById('promotionPackages-'+property.propertyId);if(packages){packages.setAttribute('aria-busy','false');packages.replaceChildren(node('strong',offer?offer.title+' · promotional stay prices':'Standard stay prices'));const list=node('ul',undefined,'promotion-rate-list');for(const[key,label]of fields){const li=node('li');li.append(document.createTextNode(label+': '));if(offer&&offer.rates[key]<property.standard[key])li.append(node('del',money(property.standard[key])),node('strong',money(offer.rates[key])));else li.append(node('span',money(property.standard[key])));list.append(li);}packages.append(list);if(offer)packages.append(node('p','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)+'. Your entire stay must fall within these nights; check-out can be the following day.','promotion-validity'));packages.append(node('p','Cleaning is free. Up to 30 guests, with no extra charge per person. Select dates to confirm your total.','pricing-note'));}
     }}
-    async function refresh(){if(loading)return;loading=true;try{const r=await fetchPricing();if(!Array.isArray(r.properties)||!Number.isFinite(Date.parse(r.serverTime)))throw Error('Invalid pricing');data=r;receivedAt=clock();render();}catch(_){render();}finally{loading=false;}}
-    const timer=setInterval(()=>{render();if(data&&clock()-receivedAt>=300000)refresh();},60000),onVisible=()=>{if(!document.hidden)refresh();};document.addEventListener('visibilitychange',onVisible);refresh();
+    async function refresh(){if(loading)return;loading=true;if(!data)status();try{const r=await fetchPricing();if(!Array.isArray(r.properties)||!Number.isFinite(Date.parse(r.serverTime))||!cards.every(card=>r.properties.some(p=>p?.propertyId===card.id.slice('propertyPrice-'.length)&&fields.every(([key])=>Number.isFinite(p.standard?.[key])&&p.standard[key]>0))))throw Error('Invalid pricing');data=r;receivedAt=clock();render();}catch(_){if(data)render();else status(true);}finally{loading=false;}}
+    const timer=setInterval(()=>{render();if(!data||clock()-receivedAt>=300000)refresh();},60000),onVisible=()=>{if(!document.hidden)refresh();};document.addEventListener('visibilitychange',onVisible);refresh();
     return {refresh,render,stop(){clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);}};
   };
   if(document.getElementById('propertyPrice-IL001'))window.createPromotionPublic({fetchPricing:()=>callBookingApi('pricing')});

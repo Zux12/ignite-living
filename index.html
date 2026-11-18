@@ -1065,8 +1065,8 @@ button:disabled{opacity:.55;cursor:not-allowed}
   }
 }
 </style>
-<link rel="stylesheet" href="assets/promotions.css?v=20261118-3">
-<script defer src="assets/promotions.js?v=20261118-3"></script>
+<link rel="stylesheet" href="assets/promotions.css?v=20261118-4">
+<script defer src="assets/promotions.js?v=20261118-4"></script>
 </head>
 
 <body>
@@ -1297,13 +1297,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
               Stay prices
             </div>
 
-            <div class="price" id="propertyPrice-IL001">
-              <span class="promotion-stay-label">1-night stay — total</span>
-              RM1,200
+            <div class="price" id="propertyPrice-IL001" aria-busy="true" aria-live="polite">
+              <span class="promotion-loading">Loading prices…</span>
             </div>
 
             <div class="price-note promotion-validity" id="propertyOffer-IL001">
-              Rate shown after selecting dates
+              Checking the latest rates and offers.
             </div>
 
             <button
@@ -3434,7 +3433,7 @@ addSummaryRow(el('rentalSummary'),'Total rental','quoteTotal');
 addSummaryRow(el('rentalSummary'),'Booking deposit (included in total)','quoteDeposit');
 addSummaryRow(el('rentalSummary'),'Balance at check-in after deposit payment','quoteBalance');
 const offerNote=document.createElement('div');offerNote.id='quotePromotion';offerNote.className='promotion-quote-note';offerNote.hidden=true;el('rentalSummary').append(offerNote);
-const note=document.createElement('div');note.id='promotionPackages-IL001';note.className='pricing-note';note.textContent='1 night: RM1,200 · 2 nights: RM1,800 · 3 nights: RM2,400. Each additional night: RM500. Cleaning is free. Up to 30 guests, with no extra charge per person. Contact us for additional discounts.';
+const note=document.createElement('div');note.id='promotionPackages-IL001';note.className='pricing-note';note.setAttribute('aria-busy','true');note.textContent='Loading prices…';
 el('rentalPanel').insertBefore(note,el('rentalPanel').firstChild);
 const confirmBox=el('confirmationModal').querySelector('.rental-summary');
 addSummaryRow(confirmBox,'Booking reference','confirmReference');
