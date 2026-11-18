@@ -2,7 +2,7 @@
 
 In `admin.html`, open **Promotional prices**, choose an available property, enable the offer, enter its title, first and last promotional night, and the package prices. Review the preview, tick the confirmation and save. Untick Enable and save to turn an offer off.
 
-The main page displays the standard price crossed out beside the lower promotional price and the promotional stay dates. Package details show one-, two- and three-night totals and the rate for extra nights. If the one-night price is unchanged, the card features the first discounted package instead.
+The main page displays the standard price crossed out beside the lower promotional price and the promotional stay dates. Package details show one-, two- and three-night totals and the rate for extra nights. The card always shows the one-night total first, followed by the two- and three-night totals and extra-night rate. A one-night price is crossed out only when that specific rate is discounted.
 
 Dates mean **stay nights**, not a booking deadline. The entire stay must fit within the period; check-out can be the day after the last promotional night. Future stay offers can be advertised immediately. The offer expires automatically after its last night in Asia/Kuala_Lumpur. Normal prices, the deposit and cleaning fee remain unchanged. Existing bookings keep their agreed totals. This is separate from returning-customer vouchers printed on receipts.
 
@@ -28,3 +28,7 @@ Deploy `Code.gs`, `AdminApi.gs` and `PromotionalPricing.gs` together to a new ve
 - 92 checks passed, including generated production-source integration, offer boundaries, expiry, money arithmetic, stale-price rejection, owner-save retries and existing booking/receipt/review regressions.
 - Browser-tested sample admin save and preview. Verified 390px layout without horizontal overflow after correcting grid minimum widths. No production promotion or booking was created.
 - The accompanying screenshot uses clearly labelled sample rates in an isolated preview.
+
+### Explicit one-night totals
+
+The homepage and admin preview now keep the one-night total visible even when only a longer package is discounted. Two- and three-night totals and extra-night rates appear alongside it. No backend rates or saved promotions changed. Validated with 93 passing checks and desktop / 390px browser previews; `one-night-price-preview.jpg` uses labelled sample rates only.

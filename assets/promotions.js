@@ -1,6 +1,6 @@
 "use strict";
 (() => {
-  const fields=[['nightlyRate','1 night'],['twoNightTotal','2 nights'],['threeNightTotal','3 nights'],['additionalNightRate','extra night after 3 nights']];
+  const fields=[['nightlyRate','1 night — total'],['twoNightTotal','2 nights — total'],['threeNightTotal','3 nights — total'],['additionalNightRate','extra night after 3 nights']];
   const money=value=>'RM '+Number(value).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
   const date=value=>new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(value+'T00:00:00Z'));
   const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -17,9 +17,25 @@
     function render(){if(!data)return;for(const property of data.properties){
       if(!fields.every(([key])=>Number.isFinite(property.standard?.[key])&&property.standard[key]>0))continue;
       const price=document.getElementById('propertyPrice-'+property.propertyId),term=document.getElementById('propertyOffer-'+property.propertyId),offer=validOffer(property.promotion)&&property.promotion.endDate>=today()?property.promotion:null;
-      if(price&&term){price.replaceChildren();term.replaceChildren();const changed=offer&&fields.find(([key])=>offer.rates[key]<property.standard[key]);
-        if(changed){const[key,label]=changed;price.append(node('span',offer.title,'promotion-badge'),node('del',money(property.standard[key]),'promotion-original'),node('strong',money(offer.rates[key])+' / '+label,'promotion-now'));term.append(node('span','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)),node('br'),node('span','Entire stay must be within these nights.'));}
-        else{price.textContent=money(property.standard.nightlyRate)+' / 1 night';term.textContent='Rate shown after selecting dates';}
+      if(price&&term){
+        price.replaceChildren();term.replaceChildren();
+        const primary=node('div',undefined,'promotion-card-primary');
+        const discounted=offer&&offer.rates.nightlyRate<property.standard.nightlyRate;
+        if(offer)primary.append(node('span',offer.title,'promotion-badge'));
+        primary.append(node('span','1-night stay — total','promotion-stay-label'));
+        if(discounted)primary.append(node('del',money(property.standard.nightlyRate),'promotion-original'));
+        primary.append(node('strong',money(discounted?offer.rates.nightlyRate:property.standard.nightlyRate),'promotion-now'));
+        primary.append(node('span','For the entire property','promotion-stay-caption'));
+        const comparison=node('ul',undefined,'promotion-card-packages');
+        for(const[key,label]of fields.slice(1)){
+          const row=node('li'),amounts=node('span',undefined,'promotion-card-amount');row.append(node('span',label));
+          const lower=offer&&offer.rates[key]<property.standard[key];
+          if(lower)amounts.append(node('del',money(property.standard[key])));
+          amounts.append(node('strong',money(lower?offer.rates[key]:property.standard[key])));row.append(amounts);comparison.append(row);
+        }
+        price.append(primary,comparison);
+        if(offer)term.append(node('span','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)),node('br'),node('span','Entire stay must be within these nights.'));
+        else term.textContent='Select your dates to check availability and confirm the total.';
       }
       const packages=document.getElementById('promotionPackages-'+property.propertyId);if(packages){packages.replaceChildren(node('strong',offer?offer.title+' · promotional stay prices':'Standard stay prices'));const list=node('ul',undefined,'promotion-rate-list');for(const[key,label]of fields){const li=node('li');li.append(document.createTextNode(label+': '));if(offer&&offer.rates[key]<property.standard[key])li.append(node('del',money(property.standard[key])),node('strong',money(offer.rates[key])));else li.append(node('span',money(property.standard[key])));list.append(li);}packages.append(list);if(offer)packages.append(node('p','Promotional nights: '+date(offer.startDate)+' – '+date(offer.endDate)+'. Your entire stay must fall within these nights; check-out can be the following day.','promotion-validity'));packages.append(node('p','Cleaning is free. Up to 30 guests, with no extra charge per person. Select dates to confirm your total.','pricing-note'));}
     }}
