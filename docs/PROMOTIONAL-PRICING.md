@@ -20,3 +20,11 @@ Only available properties can have offers. All rates must be positive, at most t
 Validation: `npm test`; include the generated private source integration check with `PROMOTION_RELEASE_DIR=PRIVATE_RELEASE npm test`. Synthetic UI tests do not create production bookings, receipts or offers. No promotion is activated by this release.
 
 Deploy `Code.gs`, `AdminApi.gs` and `PromotionalPricing.gs` together to a new version of the existing public Apps Script deployment; preserve its URL and access settings and the separate owner-dashboard deployment. Publish GitHub Pages after the backend read-only checks pass. For rollback, restore the previous Apps Script deployment version and previous frontend commit together. Do not delete saved promotions or alter historical booking totals during rollback.
+
+## Verification — 18 November 2026
+
+- Apps Script public deployment updated from version 11 to version 12; existing deployment URL, owner execution and Anyone access preserved. Separate owner deployment untouched. All three edited source files matched the prepared release; reloaded editor confirmed Saved to Drive.
+- Read-only live checks: service connected and bookings enabled; pricing returns IL001 only with original rates and no active promotion; two-night February quote remains RM1,800 with RM500 deposit / RM1,300 balance and a price-consent key.
+- 92 checks passed, including generated production-source integration, offer boundaries, expiry, money arithmetic, stale-price rejection, owner-save retries and existing booking/receipt/review regressions.
+- Browser-tested sample admin save and preview. Verified 390px layout without horizontal overflow after correcting grid minimum widths. No production promotion or booking was created.
+- The accompanying screenshot uses clearly labelled sample rates in an isolated preview.
