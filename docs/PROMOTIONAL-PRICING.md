@@ -1,0 +1,22 @@
+# Promotional stay prices
+
+In `admin.html`, open **Promotional prices**, choose an available property, enable the offer, enter its title, first and last promotional night, and the package prices. Review the preview, tick the confirmation and save. Untick Enable and save to turn an offer off.
+
+The main page displays the standard price crossed out beside the lower promotional price and the promotional stay dates. Package details show one-, two- and three-night totals and the rate for extra nights. If the one-night price is unchanged, the card features the first discounted package instead.
+
+Dates mean **stay nights**, not a booking deadline. The entire stay must fit within the period; check-out can be the day after the last promotional night. Future stay offers can be advertised immediately. The offer expires automatically after its last night in Asia/Kuala_Lumpur. Normal prices, the deposit and cleaning fee remain unchanged. Existing bookings keep their agreed totals. This is separate from returning-customer vouchers printed on receipts.
+
+## Implementation and release
+
+- `backend/PromotionalPricing.gs`: owner-authenticated settings, versioned Script Properties, validated rates/dates, safe public projection and integer-sen promotional calculations.
+- `backend/AdminApi.gs`: `ppList` and `ppSave` through the existing verified owner session.
+- `scripts/build-promotional-pricing.cjs PRIVATE_BACKUP PRIVATE_RELEASE`: applies exact-hash guarded changes to the current production `Code.gs`. Private source/configuration stays outside the repository.
+- `Code.gs` patches: public `action=pricing`, shared availability/quote calculation, and price-consent validation at booking submission. Retry replay remains before pricing checks. Saved acknowledgements retain their original agreed totals.
+- `assets/admin/promotions.js`: preview, explicit save, optimistic revision check and immutable retry after a lost save response.
+- `assets/promotions.js`: public package/card pricing, Malaysian-date expiry and quote savings. Existing static rates remain as a fallback if initial pricing cannot load. Booking prices are always validated by the backend.
+
+Only available properties can have offers. All rates must be positive, at most the corresponding standard price, with at least one actual reduction. One-, two- and three-night totals cannot be below the unchanged deposit, and package totals cannot decrease as nights increase. Expired or incompatible offers are not advertised. No customer information, editor identity or request hashes are included in public pricing.
+
+Validation: `npm test`; include the generated private source integration check with `PROMOTION_RELEASE_DIR=PRIVATE_RELEASE npm test`. Synthetic UI tests do not create production bookings, receipts or offers. No promotion is activated by this release.
+
+Deploy `Code.gs`, `AdminApi.gs` and `PromotionalPricing.gs` together to a new version of the existing public Apps Script deployment; preserve its URL and access settings and the separate owner-dashboard deployment. Publish GitHub Pages after the backend read-only checks pass. For rollback, restore the previous Apps Script deployment version and previous frontend commit together. Do not delete saved promotions or alter historical booking totals during rollback.

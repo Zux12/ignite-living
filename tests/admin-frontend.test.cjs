@@ -95,6 +95,7 @@ async function setup(t, responder) {
   w.eval(fs.readFileSync(path.join(__dirname, "../assets/admin/receipts.js"), "utf8"));
   w.eval(fs.readFileSync(path.join(__dirname, "../assets/reviews-common.js"), "utf8"));
   w.eval(fs.readFileSync(path.join(__dirname, "../assets/admin/guest-reviews.js"), "utf8"));
+  w.eval(fs.readFileSync(path.join(__dirname, "../assets/admin/promotions.js"), "utf8"));
   w.eval(script);
   await tick();
   const login = async () => {
