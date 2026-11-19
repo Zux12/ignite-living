@@ -58,6 +58,7 @@
     receiptUI.reset();
     guestReviewUI.reset();
     promotionUI.reset();
+    calendarUI.reset();
   }
   async function api(action, payload = {}) {
     const controller = new AbortController(),
@@ -872,11 +873,17 @@
     rpc, canStart: () => Boolean(sessionToken) && !busy,
     setWorking: (value) => { busy = value; $("refresh").disabled = value; },
   });
+  const calendarUI = window.createCalendarWorkspace({
+    rpc, canStart: () => Boolean(sessionToken) && !busy,
+    setWorking: (value) => { busy = value; $("refresh").disabled = value; },
+    onSaved: () => load(),
+  });
   const receiptUI = window.createReceiptWorkspace({
     rpc, canStart: () => Boolean(sessionToken) && !busy,
     setWorking: (value) => { busy = value; $("refresh").disabled = value; },
     onReviews: () => guestReviewUI.activate(),
     onPromotions: () => promotionUI.activate(),
+    onCalendar: () => calendarUI.activate(),
   });
   start();
 })();

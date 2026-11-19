@@ -20,6 +20,10 @@ const AA_METHODS = [
   "grModerate",
   "ppList",
   "ppSave",
+  "mbList",
+  "mbQuote",
+  "mbCreate",
+  "mbCancel",
 ];
 
 function aaFail_(message, code) {
@@ -332,6 +336,10 @@ function aaRpc_(input) {
       : method === "grModerate" ? grAdminModerate_(input.input)
       : method === "ppList" ? ppList_()
       : method === "ppSave" ? ppSave_(input.input)
+      : method === "mbList" ? mbList_(input.input)
+      : method === "mbQuote" ? mbQuote_(input.input)
+      : method === "mbCreate" ? mbCreate_(input.input)
+      : method === "mbCancel" ? mbCancel_(input.input)
       : dispatch[method](input.input);
     if (opening && result && result.token)
       cache.put(

@@ -2,7 +2,7 @@
   "name": "ignite-living-checks",
   "private": true,
   "scripts": {
-    "test": "node --test tests/frontend.test.cjs tests/admin-frontend.test.cjs tests/issued-receipts.test.cjs tests/receipts-frontend.test.cjs tests/guest-reviews.test.cjs tests/reviews-frontend.test.cjs tests/promotions.test.cjs"
+    "test": "node --test tests/frontend.test.cjs tests/admin-frontend.test.cjs tests/issued-receipts.test.cjs tests/receipts-frontend.test.cjs tests/guest-reviews.test.cjs tests/reviews-frontend.test.cjs tests/promotions.test.cjs tests/manual-bookings.test.cjs"
   },
   "devDependencies": {
     "jsdom": "27.4.0",

@@ -1,5 +1,5 @@
 "use strict";
-window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => {}, onPromotions = () => {} }) => {
+window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => {}, onPromotions = () => {}, onCalendar = () => {} }) => {
   const $ = id => document.getElementById(id), root = $("receiptsWorkspace"), model = IgniteReceipt;
   let epoch = 0, working = false, receipt = null, retry = null;
   const issuer = { brand: "IGNITE LIVING", company: "IgniteInno Ventures Sdn Bhd", phone: "019-345 5154", email: "info@igniteinnov.com" };
@@ -196,14 +196,16 @@ window.createReceiptWorkspace = ({ rpc, canStart, setWorking, onReviews = () => 
   };
   function select(which, force = false) {
     if (!force && (working || !canStart())) return;
-    for (const [name, panel, button] of [["promotions", "promotionsWorkspace", "showPromotions"], ["receipts", "receiptsWorkspace", "showReceipts"], ["bookings", "bookingsWorkspace", "showBookings"], ["reviews", "guestReviewsWorkspace", "showGuestReviews"]]) {
+    for (const [name, panel, button] of [["calendar", "calendarWorkspace", "showCalendar"], ["promotions", "promotionsWorkspace", "showPromotions"], ["receipts", "receiptsWorkspace", "showReceipts"], ["bookings", "bookingsWorkspace", "showBookings"], ["reviews", "guestReviewsWorkspace", "showGuestReviews"]]) {
       if ($(panel)) $(panel).hidden = which !== name;
       if ($(button)) $(button).setAttribute("aria-pressed", String(which === name));
     }
     if (which === "promotions") onPromotions();
+    if (which === "calendar") onCalendar();
     if (which === "receipts") history(); if (which === "reviews") onReviews();
   }
   $("showReceipts").onclick = () => select("receipts"); $("showBookings").onclick = () => select("bookings");
+  if ($("showCalendar")) $("showCalendar").onclick = () => select("calendar");
   if ($("showPromotions")) $("showPromotions").onclick = () => select("promotions");
   if ($("showGuestReviews")) $("showGuestReviews").onclick = () => select("reviews");
   newDraft();
