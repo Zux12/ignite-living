@@ -29,6 +29,10 @@ function mbTable_(ss) {
   const rows = values.map((cells, i) => ({ row: i + 2, cells, value: Object.fromEntries(headers.map((h, j) => [h, cells[j]])) }));
   return { sheet, headers, rows };
 }
+// Keep legacy dated references cancellable alongside UUID-based reservations.
+function mbManualReference_(id) {
+  return /^IL-MANUAL-(?:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|20\d{6}-\d{3,6})$/i.test(String(id || ''));
+}
 function mbResult_(b) {
   return { bookingId: String(b.bookingId), status: String(b.bookingStatus), checkin: dateText_(b.checkin), checkout: dateText_(b.checkout), totalAmount: Number(b.totalAmount), message: String(b.bookingStatus) === 'CANCELLED' ? 'This manual booking was already cancelled. Dates are released.' : 'Manual booking saved and confirmed. Dates are reserved. No payment has been recorded.' };
 }
@@ -41,7 +45,7 @@ function mbList_(input) {
   const propertyId = String(input?.propertyId || properties[0]?.propertyId || '');
   if (properties.length && !properties.some(p => p.propertyId === propertyId)) throw Error('Choose an available property.');
   const inMonth = (a, b) => dateText_(a) < end && dateText_(b) > first;
-  const bookings = readRows_('Bookings').filter(b => String(b.propertyId).trim() === propertyId && ['CONFIRMED','CHECKED_IN','PENDING_REVIEW'].includes(String(b.bookingStatus)) && inMonth(b.checkin,b.checkout)).map(b => ({ bookingId: String(b.bookingId), customerName: String(b.customerName), checkin: dateText_(b.checkin), checkout: dateText_(b.checkout), occupants: Number(b.occupants), status: String(b.bookingStatus), manual: String(b.bookingId).startsWith('IL-MANUAL-'), totalAmount: Number(b.totalAmount), amountPaid: Number(b.amountPaid) }));
+  const bookings = readRows_('Bookings').filter(b => String(b.propertyId).trim() === propertyId && ['CONFIRMED','CHECKED_IN','PENDING_REVIEW'].includes(String(b.bookingStatus)) && inMonth(b.checkin,b.checkout)).map(b => ({ bookingId: String(b.bookingId), customerName: String(b.customerName), checkin: dateText_(b.checkin), checkout: dateText_(b.checkout), occupants: Number(b.occupants), status: String(b.bookingStatus), manual: mbManualReference_(b.bookingId), totalAmount: Number(b.totalAmount), amountPaid: Number(b.amountPaid) }));
   const blocked = readRows_('BlockedDates').filter(b => String(b.propertyId).trim() === propertyId && String(b.active).toUpperCase() === 'TRUE' && inMonth(b.startDate,b.endDate)).map(b => ({ checkin: dateText_(b.startDate), checkout: dateText_(b.endDate) }));
   return { properties, propertyId, month, today: ppToday_(), bookings, blocked };
 }
@@ -81,7 +85,7 @@ function mbCreate_(input) {
 }
 function mbCancel_(input) {
   const owner = prOwner_(), id = String(input?.bookingId || ''), reason = mbText_(input?.reason, 'cancellation reason', 300, true);
-  if (input.confirmed !== true || !/^IL-MANUAL-[a-f0-9-]{36}$/.test(id)) throw Error('Confirm the manual booking to cancel.');
+  if (input.confirmed !== true || !mbManualReference_(id)) throw Error('Confirm the manual booking to cancel.');
   return msLocked_(() => {
     prOwner_(); const t = mbTable_(owner.ss), matches = t.rows.filter(r => String(r.value.bookingId) === id);
     if (matches.length !== 1) throw Error('Manual booking not found.');

@@ -31,3 +31,30 @@ test('calendar selection allows checkout on another checkin and safely renders n
 test('manual review shows promotion and unpaid total, requires confirmation, saves then clears guest details',async t=>{let saved=0;const a=await frontend(t,async(m,i)=>{if(m==='mbList')return list;if(m==='mbQuote')return{quote:q};saved++;assert.equal(i.confirmed,true);assert.equal(i.priceKey,q.priceKey);return{bookingId:'IL-MANUAL-synthetic',message:'Saved'};});fill(a);a.$('manualReview').click();await tick();assert.match(a.$('manualQuote').textContent,/1,400.00/);assert.match(a.$('manualQuote').textContent,/Synthetic offer/);assert.equal(a.$('manualSave').disabled,true);a.$('manualConfirmed').click();a.$('manualSave').click();await tick();assert.equal(saved,1);assert.equal(a.$('manualName').value,'');assert.match(a.$('manualMessage').textContent,/IL-MANUAL-synthetic/);});
 test('uncertain create freezes edits and retries the identical request',async t=>{const requests=[];const a=await frontend(t,async(m,i)=>{if(m==='mbList')return list;if(m==='mbQuote')return{quote:q};requests.push(JSON.stringify(i));if(requests.length===1)throw Error('Timeout');return{bookingId:'IL-MANUAL-synthetic',message:'Saved'};});fill(a);a.$('manualReview').click();await tick();a.$('manualConfirmed').click();a.$('manualSave').click();await tick();assert.equal(a.$('manualName').disabled,true);assert.equal(a.$('calendarNext').disabled,true);assert.equal(a.$('manualSave').disabled,false);a.$('manualSave').click();await tick();assert.equal(requests.length,2);assert.equal(requests[0],requests[1]);});
 test('logout clears calendar and ignores late data; failed month load disables stale calendar',async t=>{let resolve;const a=await frontend(t,async()=>list);const ui=a.w.createCalendarWorkspace({rpc:()=>new Promise(r=>resolve=r),canStart:()=>true,setWorking:()=>{}});const loading=ui.activate();ui.reset();resolve(list);await loading;assert.equal(a.$('calendarGrid').children.length,0);let fail=false;const b=await frontend(t,async()=>{if(fail)throw Error('Offline');return list;});fail=true;b.$('calendarNext').click();await tick();assert.equal(b.$('manualName').disabled,true);assert.equal(b.$('calendarGrid').children.length,0);assert.equal(b.$('calendarReload').disabled,false);});
+
+function legacyBooking(h,extra={}) {
+ const b={...input(),bookingId:'IL-MANUAL-20270103-001',bookingStatus:'CONFIRMED',paymentStatus:'UNPAID',totalAmount:1800,amountPaid:0,balanceDue:1800,amountRefunded:0,refundDue:0,...extra};
+ h.records.push(headers.map(k=>b[k]===undefined?'':b[k]));return b;
+}
+test('legacy dated manual reference cancels, releases nights and safely replays a lost response',()=>{
+ const h=backend(),b=legacyBooking(h),request={bookingId:b.bookingId,confirmed:true,reason:'Synthetic cancellation'};
+ assert.equal(h.c.mbList_({month:'2027-01'}).bookings[0].manual,true);
+ h.setLost();assert.throws(()=>h.c.mbCancel_(request),/Lost response/);
+ assert.equal(h.c.mbCancel_(request).status,'CANCELLED');assert.equal(h.writes,1);
+ assert.equal(h.rows()[0].bookingId,b.bookingId);assert.equal(h.c.mbQuote_(input()).quote.available,true);
+});
+test('legacy cancellation still requires confirmation, unique record, upcoming stay and no payments',()=>{
+ const cases=[{amountPaid:300},{refundDue:100},{amountRefunded:100},{bookingStatus:'CHECKED_IN'},{checkin:'2026-11-01'}];
+ for(const extra of cases){const h=backend(),b=legacyBooking(h,extra);assert.throws(()=>h.c.mbCancel_({bookingId:b.bookingId,confirmed:true,reason:'Synthetic'}));assert.equal(h.writes,0);}
+ for(const table of ['PaymentProofs','StayRequests']){const h=backend(),b=legacyBooking(h);h.other[table].push({bookingId:b.bookingId});assert.throws(()=>h.c.mbCancel_({bookingId:b.bookingId,confirmed:true,reason:'Synthetic'}),/payment or stay-request/);assert.equal(h.writes,0);}
+ const h=backend(),b=legacyBooking(h);assert.throws(()=>h.c.mbCancel_({bookingId:b.bookingId,confirmed:false,reason:'Synthetic'}));assert.throws(()=>h.c.mbCancel_({bookingId:'IL-20270103-001',confirmed:true,reason:'Synthetic'}));legacyBooking(h);assert.throws(()=>h.c.mbCancel_({bookingId:b.bookingId,confirmed:true,reason:'Synthetic'}),/not found/);assert.equal(h.writes,0);
+});
+test('cancel button opens a form and shows rejected, retry and successful outcomes beside it',async t=>{
+ const h=backend();legacyBooking(h);let attempts=0;
+ const a=await frontend(t,async(method,i)=>{if(method==='mbList')return h.c.mbList_({month:'2027-01'});assert.equal(method,'mbCancel');attempts++;if(attempts===1){const err=Error('Synthetic server rejection');err.code='ADMIN_ACTION_FAILED';throw err;}if(attempts===2)throw Error('Connection lost');return h.c.mbCancel_(i);});
+ a.$('calendarStays').querySelector('button').click();assert.equal(a.$('calendarCancel').hidden,false);assert.equal(a.d.activeElement,a.$('calendarCancelReason'));
+ const form=a.$('calendarCancel').querySelector('form');form.querySelector('button[type="submit"]').click();await tick();assert.equal(attempts,0);
+ a.$('calendarCancelReason').value='Synthetic reason';a.$('calendarCancelConfirmed').click();form.querySelector('button[type="submit"]').click();await tick();assert.match(a.$('calendarCancelMessage').textContent,/Synthetic server rejection/);assert.equal(a.$('calendarCancel').hidden,false);
+ form.querySelector('button[type="submit"]').click();await tick();assert.match(a.$('calendarCancelMessage').textContent,/Retry to check or complete/);
+ form.querySelector('button[type="submit"]').click();await tick();assert.match(a.$('calendarCancel').textContent,/Booking cancelled/);assert.equal(a.$('calendarStays').querySelector('button'),null);assert.equal(a.d.querySelector('[data-date="2027-01-03"]').classList.contains('reserved'),false);assert.equal(h.writes,1);
+});

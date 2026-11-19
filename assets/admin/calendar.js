@@ -120,8 +120,20 @@ window.createCalendarWorkspace = ({ rpc, canStart, setWorking, onSaved = () => {
     if(working||retry||!canStart())return;cancellation=b;const box=$("calendarCancel");box.replaceChildren(node("h3","Cancel "+b.customerName+"’s booking?"),node("p",dateLabel(b.checkin)+" → "+dateLabel(b.checkout)+". This releases the nights."));
     const form=node("form"),label=node("label","Reason"),reason=node("input"),confirmLabel=node("label",undefined,"calendar-confirm"),check=node("input"),submit=node("button","Confirm cancellation"),close=node("button","Keep booking");
     label.htmlFor=reason.id="calendarCancelReason";reason.required=true;reason.maxLength=300;check.type="checkbox";check.required=true;check.id="calendarCancelConfirmed";confirmLabel.append(check,document.createTextNode("No money was collected for this booking. Cancel it."));submit.type="submit";close.type="button";close.onclick=()=>{box.hidden=true;cancellation=null;};form.append(label,reason,confirmLabel,submit,close);box.append(form);box.hidden=false;
-    form.onsubmit=async e=>{e.preventDefault();if(!form.reportValidity())return;const input={bookingId:b.bookingId,reason:reason.value,confirmed:check.checked};let saved=false;await run(async active=>{const result=await rpc("mbCancel",input);if(!active())return;saved=true;box.hidden=true;cancellation=null;message(result.message);await fetchMonth(active);});if(saved)onSaved();};
-    reason.focus();
+    const status=node("p", "", "message");status.id="calendarCancelMessage";status.setAttribute("role","status");status.setAttribute("aria-live","polite");form.append(status);
+    form.onsubmit=async e=>{
+      e.preventDefault();if(!form.reportValidity())return;
+      const input={bookingId:b.bookingId,reason:reason.value,confirmed:check.checked};let saved=false;
+      await run(async active=>{
+        status.textContent="Cancelling booking…";
+        const result=await rpc("mbCancel",input);if(!active())return;
+        saved=true;cancellation=null;message(result.message);
+        box.replaceChildren(node("h3","Booking cancelled"),node("p",b.customerName+" · "+dateLabel(b.checkin)+" → "+dateLabel(b.checkout)),node("p","The nights have been released."));
+        try{await fetchMonth(active);}catch(_){if(active())box.append(node("p","Cancellation saved. Refresh the calendar to see the latest availability."));}
+      },error=>{status.textContent=error.message+(error.code==="ADMIN_ACTION_FAILED"?"":" Cancellation could not be confirmed. Retry to check or complete it.");});
+      if(saved)onSaved();
+    };
+    box.scrollIntoView?.({block:"nearest"});reason.focus();
   }
   controls();
   return { activate, reset(){epoch++;working=false;data=null;quote=null;retry=null;cancellation=null;month="";propertyId="";$("manualBookingForm").reset();invalidate();for(const id of ["calendarGrid","calendarStays","calendarProperty","calendarCancel","calendarMonth"])$(id).replaceChildren();$("calendarCancel").hidden=true;message("");controls();} };

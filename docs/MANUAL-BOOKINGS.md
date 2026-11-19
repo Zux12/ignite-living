@@ -17,3 +17,5 @@ Creation and cancellation use the same project script lock as guest bookings and
 Verification on 19 November 2026: isolated synthetic backend and UI tests, including the current live availability code; desktop and 390px mobile preview. No test booking was added to the production sheet. Preview fixtures are excluded from publication.
 
 Release: public Apps Script deployment updated to version 13 on 19 November 2026; URL and access settings retained. All 107 automated checks passed with the live source integration enabled.
+
+Cancellation correction, 19 November 2026: manual reservations with legacy dated references (`IL-MANUAL-YYYYMMDD-NNN`) now pass the same cancellation checks as UUID references. Calendar eligibility and server validation share one reference check. Cancellation progress, failures and success are displayed beside the form, with an explicit scroll into view. Added regression coverage for legacy references, failed responses, required confirmation and payment protections. All 110 automated checks passed; no production booking was cancelled during verification.
