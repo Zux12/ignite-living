@@ -20,6 +20,9 @@ const AA_METHODS = [
   "grModerate",
   "ppList",
   "ppSave",
+  "mbOpenEdit",
+  "mbPreviewEdit",
+  "mbSaveEdit",
   "mbList",
   "mbQuote",
   "mbCreate",
@@ -336,6 +339,9 @@ function aaRpc_(input) {
       : method === "grModerate" ? grAdminModerate_(input.input)
       : method === "ppList" ? ppList_()
       : method === "ppSave" ? ppSave_(input.input)
+      : method === "mbOpenEdit" ? mbOpenEdit_(input.input)
+      : method === "mbPreviewEdit" ? mbPreviewEdit_(input.input)
+      : method === "mbSaveEdit" ? mbSaveEdit_(input.input)
       : method === "mbList" ? mbList_(input.input)
       : method === "mbQuote" ? mbQuote_(input.input)
       : method === "mbCreate" ? mbCreate_(input.input)

@@ -1,0 +1,27 @@
+--- a/Code.gs
++++ b/Code.gs
+@@ -430,13 +430,13 @@
+     reject_("The stay is shorter than the minimum permitted.");
+   }
+ 
+-  const overlaps = (start, end) => {
++  const overlaps = (start, end, includeCheckout) => {
+     const first = dateText_(start);
+     const last = dateText_(end);
+ 
+     if (last <= first) throw new Error("Invalid existing date range.");
+ 
+-    return checkin < last && checkout > first;
++    return mbDatesOverlap_(checkin, checkout, first, last, includeCheckout);
+   };
+ 
+   const booked = readRows_("Bookings").some(row =>
+@@ -445,7 +445,7 @@
+     ["CONFIRMED", "CHECKED_IN"].includes(
+       String(row.bookingStatus).trim().toUpperCase()
+     ) &&
+-    overlaps(row.checkin, row.checkout)
++    overlaps(row.checkin, row.checkout, true)
+   );
+ 
+   const blocked = readRows_("BlockedDates").some(row =>
